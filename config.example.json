@@ -7,6 +7,6 @@
     "network": "ResNet50",
     "learning_rate": 0.001,
     "num_epochs": 2,
-    "weights_dir": "./models/",
+    "weights_dir": "./models",
     "weights_path": "resnet_cifar10"
 }
