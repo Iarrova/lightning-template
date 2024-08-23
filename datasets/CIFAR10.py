@@ -14,11 +14,12 @@ def generate_CIFAR10(
     num_workers: int = 15,
 ) -> Tuple[DataLoader, DataLoader, DataLoader, Dict[Any, int]]:
     normalize = [
+        v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True),
         v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ]
     transform_train = (
-        v2.Compose([v2.ToImage(), v2.RandomHorizontalFlip(p=0.5)] + normalize)
+        v2.Compose([v2.RandomHorizontalFlip(p=0.5)] + normalize)
         if augment
         else v2.Compose(normalize)
     )

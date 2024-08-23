@@ -1,3 +1,5 @@
+import argparse
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -11,17 +13,20 @@ from lightning.pytorch.callbacks import (
 
 from torchmetrics.classification import Accuracy
 
-# TODO: Move to argparser
-SEED = 42
-DATASET = "CIFAR10"
-BATCH_SIZE = 64
-VALIDATION_SIZE = 0.2
-AUGMENT = True
-NETWORK = "ResNet50"
-LEARNING_RATE = 0.001
-NUM_EPOCHS = 2
+from utils.json_parser import parse_json
 
-L.seed_everything(SEED)
+parser = argparse.ArgumentParser(
+    description="Template for PyTorch Lightning prototyping."
+)
+parser.add_argument(
+    "--config_path",
+    help="The path to the configuration file to use in training/testing.",
+)
+args = parser.parse_args()
+
+config = parse_json(args.config_path)
+
+L.seed_everything(config.seed)
 if torch.cuda.is_available():
     print("[INFO] CUDA is available! Training on GPU...")
 else:
@@ -29,7 +34,7 @@ else:
 
 
 # Dataset
-if DATASET == "CIFAR10":
+if config.dataset == "CIFAR10":
     from datasets.CIFAR10 import generate_CIFAR10 as generate_dataset
 
     num_classes = 10
@@ -38,12 +43,14 @@ else:
     exit(1)
 
 train_loader, validation_loader, test_loader, classes = generate_dataset(
-    batch_size=BATCH_SIZE, validation_size=VALIDATION_SIZE, augment=AUGMENT
+    batch_size=config.batch_size,
+    validation_size=config.validation_size,
+    augment=config.augment,
 )
 
 
 # Network
-if NETWORK == "ResNet50":
+if config.network == "ResNet50":
     from networks.resnet50 import ResNet50 as network
 else:
     print("[ERROR] Currently only ResNet50 network is supported. Exiting...")
@@ -61,7 +68,6 @@ class LitModel(L.LightningModule):
         # Metrics
         self.train_accuracy = Accuracy(task="multiclass", num_classes=len(classes))
         self.validation_accuracy = Accuracy(task="multiclass", num_classes=len(classes))
-        self.test_accuracy = Accuracy(task="multiclass", num_classes=len(classes))
 
     def step(self, batch):
         inputs, target = batch
@@ -95,23 +101,8 @@ class LitModel(L.LightningModule):
             logger=True,
         )
 
-    def test_step(self, batch, batch_idx):
-        loss, output, target = self.step(batch)
-        self.test_accuracy.update(output, target)
-        self.log(
-            "test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True
-        )
-        self.log(
-            "test_acc",
-            self.test_accuracy,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
-
     def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=LEARNING_RATE)
+        optimizer = optim.Adam(self.parameters(), lr=config.learning_rate)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer, mode="min", factor=0.1, patience=5, cooldown=1
         )
@@ -128,8 +119,8 @@ litmodel = LitModel(model, criterion)
 # Callbacks
 callbacks = [
     ModelCheckpoint(
-        dirpath="./models/",
-        filename="{epoch}-{val_loss:.2f}",
+        dirpath=config.weights_dir,
+        filename=config.weights_path,
         monitor="val_loss",
         mode="min",
         verbose=True,
@@ -139,7 +130,11 @@ callbacks = [
 ]
 
 trainer = L.Trainer(
-    max_epochs=NUM_EPOCHS, callbacks=callbacks, accelerator="auto", devices="auto"
+    max_epochs=config.num_epochs,
+    callbacks=callbacks,
+    accelerator="auto",
+    devices="auto",
+    deterministic=True,
 )
 
 trainer.fit(
