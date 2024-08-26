@@ -37,7 +37,9 @@ else:
     exit(1)
 
 train_loader, validation_loader, test_loader, classes = generate_dataset(
-    batch_size=config.batch_size, validation_size=config.validation_size, augment=config.augment
+    batch_size=config.batch_size,
+    validation_size=config.validation_size,
+    augment=config.augment,
 )
 
 
@@ -82,7 +84,7 @@ class LitModel(L.LightningModule):
 
 
 criterion = nn.CrossEntropyLoss()
-weights_path = f"{config.weights_dir}/{config.weights_path}.ckpt" 
+weights_path = f"{config.weights_dir}/{config.weights_path}.ckpt"
 litmodel = LitModel.load_from_checkpoint(weights_path, model=model, criterion=criterion)
 
 trainer = L.Trainer()
