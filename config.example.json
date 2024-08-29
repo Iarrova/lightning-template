@@ -4,11 +4,11 @@
     "batch_size": 64,
     "validation_size": 0.2,
     "augment": true,
-    "network": "ResNet50",
+    "network": "EfficientNetV2",
     "include_top": false,
     "weights": "imagenet",
     "learning_rate": 0.001,
     "num_epochs": 20,
     "weights_dir": "./models",
-    "weights_path": "resnet_cifar10"
+    "weights_path": "efficient_cifar10"
 }

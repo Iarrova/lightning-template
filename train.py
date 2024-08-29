@@ -57,6 +57,8 @@ train_loader, validation_loader, test_loader, classes = generate_dataset(
 
 if config.network == "ResNet50":
     from networks.resnet50 import ResNet50 as network
+elif config.network == "EfficientNetV2":
+    from networks.efficientnetv2 import EfficientNetV2 as network
 else:
     print("[ERROR] Currently only ResNet50 network is supported. Exiting...")
 
