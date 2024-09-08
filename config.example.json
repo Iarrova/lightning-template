@@ -1,7 +1,7 @@
 {
     "seed": 42,
-    "dataset": "CIFAR10",
-    "batch_size": 64,
+    "dataset": "Upscaled-CIFAR10",
+    "batch_size": 32,
     "validation_size": 0.2,
     "augment": true,
     "network": "EfficientNetV2",
@@ -10,5 +10,5 @@
     "learning_rate": 0.001,
     "num_epochs": 20,
     "weights_dir": "./models",
-    "weights_path": "efficient_cifar10"
+    "weights_path": "efficient_upscaled-cifar10"
 }

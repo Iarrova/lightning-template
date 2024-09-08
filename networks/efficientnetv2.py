@@ -24,7 +24,7 @@ class EfficientNetV2(nn.Module):
         if not include_top:
             model.classifier = nn.Sequential(
                 nn.Dropout(p=0.2),
-                nn.Linear(model.classifier[1].in_features, num_classes)
+                nn.Linear(model.classifier[1].in_features, num_classes),
             )
 
         self.model = model

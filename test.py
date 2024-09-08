@@ -13,7 +13,7 @@ from torchmetrics.classification import (
     Precision,
     Recall,
     AUROC,
-    ConfusionMatrix
+    ConfusionMatrix,
 )
 
 from utils.config import Config
@@ -72,12 +72,18 @@ class Model(L.LightningModule):
         self.metrics = MetricCollection(
             {
                 "accuracy": Accuracy(task="multiclass", num_classes=num_classes),
-                "precision": Precision(task="multiclass", num_classes=num_classes, average="macro"),
-                "recall": Recall(task="multiclass", num_classes=num_classes, average="macro"),
+                "precision": Precision(
+                    task="multiclass", num_classes=num_classes, average="macro"
+                ),
+                "recall": Recall(
+                    task="multiclass", num_classes=num_classes, average="macro"
+                ),
                 "auc": AUROC(task="multiclass", num_classes=num_classes),
             }
         )
-        self.confusion_matrix = ConfusionMatrix(task="multiclass", num_classes=num_classes)
+        self.confusion_matrix = ConfusionMatrix(
+            task="multiclass", num_classes=num_classes
+        )
 
     def step(self, batch):
         inputs, target = batch
@@ -103,8 +109,16 @@ for metric_name, metric_instance in model.metrics.items():
 
 fig, ax = plt.subplots(figsize=(8, 6))
 class_names = list(classes.keys())
-sns.heatmap(model.confusion_matrix.compute(), annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names, ax=ax)
-ax.tick_params(axis='x', labelrotation=45)
+sns.heatmap(
+    model.confusion_matrix.compute(),
+    annot=True,
+    fmt="d",
+    cmap="Blues",
+    xticklabels=class_names,
+    yticklabels=class_names,
+    ax=ax,
+)
+ax.tick_params(axis="x", labelrotation=45)
 ax.set_xlabel("Predicted Labels")
 ax.set_ylabel("True Labels")
 ax.set_title("Confusion Matrix")

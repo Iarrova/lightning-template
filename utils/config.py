@@ -5,6 +5,7 @@ from typing import Annotated
 
 class Datasets(StrEnum):
     CIFAR10 = "CIFAR10"
+    UPSCALED_CIFAR10 = "Upscaled-CIFAR10"
 
 
 class Networks(StrEnum):

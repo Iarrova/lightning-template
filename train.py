@@ -26,7 +26,7 @@ parser: ArgumentParser = ArgumentParser(
     description="Template for PyTorch Lightning prototyping."
 )
 parser.add_argument(
-    "--config_path",
+    "--config-path",
     help="The path to the configuration file to use in training/testing.",
 )
 args: Namespace = parser.parse_args()
@@ -44,6 +44,10 @@ if config.dataset == "CIFAR10":
     from datasets.CIFAR10 import generate_CIFAR10 as generate_dataset
 
     num_classes = 10
+elif config.dataset == "Upscaled-CIFAR10":
+    from datasets.Upscaled_CIFAR10 import generate_upscaled_CIFAR10 as generate_dataset
+
+    num_classes = 10
 else:
     print("[ERROR] Currently only CIFAR10 dataset is supported. Exiting...")
     exit(1)
@@ -53,7 +57,6 @@ train_loader, validation_loader, test_loader, classes = generate_dataset(
     validation_size=config.validation_size,
     augment=config.augment,
 )
-
 
 if config.network == "ResNet50":
     from networks.resnet50 import ResNet50 as network
@@ -76,8 +79,12 @@ class Model(L.LightningModule):
         metrics = MetricCollection(
             {
                 "accuracy": Accuracy(task="multiclass", num_classes=num_classes),
-                "precision": Precision(task="multiclass", num_classes=num_classes, average="macro"),
-                "recall": Recall(task="multiclass", num_classes=num_classes, average="macro"),
+                "precision": Precision(
+                    task="multiclass", num_classes=num_classes, average="macro"
+                ),
+                "recall": Recall(
+                    task="multiclass", num_classes=num_classes, average="macro"
+                ),
                 "auc": AUROC(task="multiclass", num_classes=num_classes),
             }
         )
@@ -96,7 +103,9 @@ class Model(L.LightningModule):
         self.log(
             "train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True
         )
-        self.log_dict(self.train_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log_dict(
+            self.train_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True
+        )
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -106,7 +115,11 @@ class Model(L.LightningModule):
             "val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True
         )
         self.log_dict(
-            self.validation_metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True
+            self.validation_metrics,
+            on_step=False,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
         )
 
     def configure_optimizers(self):

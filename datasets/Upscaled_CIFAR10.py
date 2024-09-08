@@ -7,16 +7,16 @@ from torchvision import datasets
 from torchvision.transforms import v2
 
 
-def generate_Imagenette(
-    batch_size: int = 128,
+def generate_upscaled_CIFAR10(
+    batch_size: int = 64,
     validation_size: float = 0.2,
     augment: bool = True,
     num_workers: int = 15,
 ) -> Tuple[DataLoader, DataLoader, DataLoader, Dict[Any, int]]:
     normalize = [
-        v2.ToImage(),
         v2.Resize(256),
-        v2.CenterCrop(224),
+        v2.CenterCrop(256),
+        v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True),
         v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ]
@@ -27,15 +27,11 @@ def generate_Imagenette(
     )
     transform_test = v2.Compose(normalize)
 
-    train_dataset = datasets.Imagenette(
-        root="./data",
-        split="train",
-        size="full",
-        download=True,
-        transform=transform_train,
+    train_dataset = datasets.ImageFolder(
+        root="./data/cifar10-128/train", transform=transform_train
     )
-    test_dataset = datasets.Imagenette(
-        root="./data", split="val", size="full", download=True, transform=transform_test
+    test_dataset = datasets.ImageFolder(
+        root="./data/cifar10-128/test", transform=transform_test
     )
 
     train_set, validation_set = random_split(
@@ -52,6 +48,17 @@ def generate_Imagenette(
         test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
     )
 
-    class_mapping = train_dataset.class_to_idx
+    class_mapping = {
+        "airplane": 0,
+        "automobile": 1,
+        "bird": 2,
+        "cat": 3,
+        "deer": 4,
+        "dog": 5,
+        "frog": 6,
+        "horse": 7,
+        "ship": 8,
+        "truck": 9,
+    }
 
     return train_loader, validation_loader, test_loader, class_mapping

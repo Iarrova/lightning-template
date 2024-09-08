@@ -166,3 +166,4 @@ cython_debug/
 data/
 lightning_logs/
 models/
+config.example.json
