@@ -19,6 +19,8 @@ from torchmetrics.classification import (
     AUROC,
 )
 
+from datasets.load_dataset import load_dataset
+from networks.load_network import load_network
 from utils.config import Config
 from utils.json_parser import parse_json
 
@@ -39,41 +41,16 @@ if torch.cuda.is_available():
 else:
     print("[INFO] CUDA is not available. Training on CPU...")
 
-
-if config.dataset == "CIFAR10":
-    from datasets.CIFAR10 import generate_CIFAR10 as generate_dataset
-
-    num_classes = 10
-elif config.dataset == "Upscaled-CIFAR10":
-    from datasets.Upscaled_CIFAR10 import generate_upscaled_CIFAR10 as generate_dataset
-
-    num_classes = 10
-else:
-    print("[ERROR] Currently only CIFAR10 dataset is supported. Exiting...")
-    exit(1)
-
-train_loader, validation_loader, test_loader, classes = generate_dataset(
-    batch_size=config.batch_size,
-    validation_size=config.validation_size,
-    augment=config.augment,
+train_loader, validation_loader, test_loader, classes, num_classes = load_dataset(
+    config
 )
-
-if config.network == "ResNet50":
-    from networks.resnet50 import ResNet50 as network
-elif config.network == "EfficientNetV2":
-    from networks.efficientnetv2 import EfficientNetV2 as network
-else:
-    print("[ERROR] Currently only ResNet50 network is supported. Exiting...")
-
-model: network = network(
-    include_top=config.include_top, weights=config.weights, num_classes=num_classes
-)
+model = load_network(config, num_classes)
 
 
 class Model(L.LightningModule):
-    def __init__(self, model: network, criterion):
+    def __init__(self, model, criterion):
         super().__init__()
-        self.model: network = model
+        self.model = model
         self.criterion = criterion
 
         metrics = MetricCollection(

@@ -7,7 +7,7 @@ from torchvision import datasets
 from torchvision.transforms import v2
 
 
-def generate_Imagenette(
+def generate_CIFAR100(
     batch_size: int = 128,
     validation_size: float = 0.2,
     augment: bool = True,
@@ -15,8 +15,6 @@ def generate_Imagenette(
 ) -> Tuple[DataLoader, DataLoader, DataLoader, Dict[Any, int]]:
     normalize = [
         v2.ToImage(),
-        v2.Resize(256),
-        v2.CenterCrop(224),
         v2.ToDtype(torch.float32, scale=True),
         v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ]
@@ -27,15 +25,11 @@ def generate_Imagenette(
     )
     transform_test = v2.Compose(normalize)
 
-    train_dataset = datasets.Imagenette(
-        root="./data",
-        split="train",
-        size="full",
-        download=True,
-        transform=transform_train,
+    train_dataset = datasets.CIFAR100(
+        root="./data", train=True, download=True, transform=transform_train
     )
-    test_dataset = datasets.Imagenette(
-        root="./data", split="val", size="full", download=True, transform=transform_test
+    test_dataset = datasets.CIFAR100(
+        root="./data", train=False, download=True, transform=transform_test
     )
 
     train_set, validation_set = random_split(

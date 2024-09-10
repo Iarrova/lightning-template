@@ -16,6 +16,8 @@ from torchmetrics.classification import (
     ConfusionMatrix,
 )
 
+from datasets.load_dataset import load_dataset
+from networks.load_network import load_network
 from utils.config import Config
 from utils.json_parser import parse_json
 
@@ -37,36 +39,16 @@ else:
     print("[INFO] CUDA is not available. Training on CPU...")
 
 
-if config.dataset == "CIFAR10":
-    from datasets.CIFAR10 import generate_CIFAR10 as generate_dataset
-
-    num_classes = 10
-else:
-    print("[ERROR] Currently only CIFAR10 dataset is supported. Exiting...")
-    exit(1)
-
-train_loader, validation_loader, test_loader, classes = generate_dataset(
-    batch_size=config.batch_size,
-    validation_size=config.validation_size,
-    augment=config.augment,
+train_loader, validation_loader, test_loader, classes, num_classes = load_dataset(
+    config
 )
+model = load_network(config, num_classes)
 
 
-if config.network == "ResNet50":
-    from networks.resnet50 import ResNet50 as network
-else:
-    print("[ERROR] Currently only ResNet50 network is supported. Exiting...")
-
-model: network = network(
-    include_top=config.include_top, weights=config.weights, num_classes=num_classes
-)
-
-
-# PyTorch Lightning
 class Model(L.LightningModule):
-    def __init__(self, model: network, criterion):
+    def __init__(self, model, criterion):
         super().__init__()
-        self.model: network = model
+        self.model = model
         self.criterion = criterion
 
         self.metrics = MetricCollection(
@@ -123,6 +105,5 @@ ax.set_xlabel("Predicted Labels")
 ax.set_ylabel("True Labels")
 ax.set_title("Confusion Matrix")
 
-# Save the confusion matrix as an image
 plt.savefig("confusion_matrix.png")
 plt.close(fig)
