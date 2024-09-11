@@ -4,7 +4,7 @@ from torchvision import models
 from typing import Optional
 
 
-class ResNet50(nn.Module):
+class VisionTransformer(nn.Module):
     def __init__(
         self,
         include_top: bool = True,
@@ -14,14 +14,17 @@ class ResNet50(nn.Module):
         super().__init__()
 
         if weights == "imagenet":
-            model = models.resnet50(weights="IMAGENET1K_V2")
+            model = models.vit_b_16(weights="IMAGENET1K_V1")
         else:
-            model = models.resnet50(weights=None)
+            model = models.vit_b_16(weights=None)
             if weights is not None:
                 model.load_state_dict(torch.load(weights))
 
         if not include_top:
-            model.fc = nn.Linear(model.fc.in_features, num_classes)
+            model.heads = nn.Sequential(
+                nn.Dropout(p=0.2),
+                nn.Linear(model.heads[0].in_features, num_classes),
+            )
 
         self.model = model
 

@@ -2,6 +2,7 @@ from enum import StrEnum
 from pydantic import BaseModel, Field
 from typing import Annotated
 
+
 class Datasets(StrEnum):
     CIFAR10 = "CIFAR10"
     CIFAR100 = "CIFAR100"
@@ -11,6 +12,7 @@ class Datasets(StrEnum):
 class Networks(StrEnum):
     RESNET50 = "ResNet50"
     EFFICIENTNETV2 = "EfficientNetV2"
+    VISION_TRANSFORMER = "VisionTransformer"
 
 
 class Config(BaseModel):

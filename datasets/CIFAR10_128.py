@@ -34,7 +34,7 @@ class CIFAR10_128(Dataset):
     def get_transforms(self) -> Tuple[v2.Compose, v2.Compose]:
         normalize = [
             v2.Resize(256),
-            v2.CenterCrop(256),
+            v2.CenterCrop(224),
             v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
