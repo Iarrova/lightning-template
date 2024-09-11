@@ -2,10 +2,10 @@ from enum import StrEnum
 from pydantic import BaseModel, Field
 from typing import Annotated
 
-
 class Datasets(StrEnum):
     CIFAR10 = "CIFAR10"
-    UPSCALED_CIFAR10 = "Upscaled-CIFAR10"
+    CIFAR100 = "CIFAR100"
+    CIFAR10_128 = "CIFAR10-128"
 
 
 class Networks(StrEnum):

@@ -41,16 +41,11 @@ if torch.cuda.is_available():
 else:
     print("[INFO] CUDA is not available. Training on CPU...")
 
-train_loader, validation_loader, test_loader, classes, num_classes = load_dataset(
-    config
-)
-model = load_network(config, num_classes)
-
 
 class Model(L.LightningModule):
-    def __init__(self, model, criterion):
+    def __init__(self, network, criterion, num_classes):
         super().__init__()
-        self.model = model
+        self.network = network
         self.criterion = criterion
 
         metrics = MetricCollection(
@@ -70,7 +65,7 @@ class Model(L.LightningModule):
 
     def step(self, batch):
         inputs, target = batch
-        output = self.model(inputs)
+        output = self.network(inputs)
         loss = self.criterion(output, target)
         return loss, output, target
 
@@ -111,8 +106,12 @@ class Model(L.LightningModule):
         }
 
 
+dataset = load_dataset(config)
+train_loader, validation_loader = dataset.generate_train_loaders()
+
+network = load_network(config, dataset.num_classes)
 criterion = nn.CrossEntropyLoss()
-model = Model(model, criterion)
+model = Model(network, criterion, dataset.num_classes)
 
 callbacks = [
     ModelCheckpoint(

@@ -6,8 +6,8 @@ from typing import Tuple, Dict
 from datasets.dataset import Dataset
 
 
-class CIFAR100(Dataset):
-    num_classes = 100
+class CIFAR10_128(Dataset):
+    num_classes = 10
 
     def __init__(
         self,
@@ -19,21 +19,22 @@ class CIFAR100(Dataset):
         super().__init__(batch_size, validation_size, augment, num_workers)
 
     def get_train_dataset(self, transform_train: v2.Compose):
-        train_dataset = datasets.CIFAR100(
-            root="./data", train=True, download=True, transform=transform_train
+        train_dataset = datasets.ImageFolder(
+            root="./data/cifar10-128/train", transform=transform_train
         )
 
-        self.class_mapping = train_dataset.class_to_idx
         return train_dataset
 
     def get_test_dataset(self, transform_test: v2.Compose):
-        test_dataset = datasets.CIFAR100(
-            root="./data", train=False, download=True, transform=transform_test
+        test_dataset = datasets.ImageFolder(
+            root="./data/cifar10-128/test", transform=transform_test
         )
         return test_dataset
 
     def get_transforms(self) -> Tuple[v2.Compose, v2.Compose]:
         normalize = [
+            v2.Resize(256),
+            v2.CenterCrop(256),
             v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -48,4 +49,17 @@ class CIFAR100(Dataset):
         return transform_train, transform_test
 
     def get_class_mapping(self) -> Dict[str, int]:
-        return self.class_mapping
+        class_mapping = {
+            "airplane": 0,
+            "automobile": 1,
+            "bird": 2,
+            "cat": 3,
+            "deer": 4,
+            "dog": 5,
+            "frog": 6,
+            "horse": 7,
+            "ship": 8,
+            "truck": 9,
+        }
+
+        return class_mapping
