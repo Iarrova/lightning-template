@@ -1,13 +1,14 @@
+from typing import Dict, Tuple
+
 import torch
 from torchvision import datasets
 from torchvision.transforms import v2
-from typing import Tuple, Dict
 
 from datasets.dataset import Dataset
 
 
-class CIFAR100(Dataset):
-    num_classes = 100
+class Imagenette(Dataset):
+    num_classes = 10
 
     def __init__(
         self,
@@ -19,16 +20,22 @@ class CIFAR100(Dataset):
         super().__init__(batch_size, validation_size, augment, num_workers)
 
     def get_train_dataset(self, transform_train: v2.Compose):
-        train_dataset = datasets.CIFAR100(
-            root="./data", train=True, download=True, transform=transform_train
+        train_dataset = datasets.Imagenette(
+            root="./data",
+            split="train",
+            size="full",
+            download=False,
+            transform=transform_train,
         )
-
-        self.class_mapping = train_dataset.class_to_idx
         return train_dataset
 
     def get_test_dataset(self, transform_test: v2.Compose):
-        test_dataset = datasets.CIFAR100(
-            root="./data", train=False, download=True, transform=transform_test
+        test_dataset = datasets.Imagenette(
+            root="./data",
+            split="val",
+            size="full",
+            download=False,
+            transform=transform_test,
         )
         return test_dataset
 
@@ -48,4 +55,15 @@ class CIFAR100(Dataset):
         return transform_train, transform_test
 
     def get_class_mapping(self) -> Dict[str, int]:
-        return self.class_mapping
+        return {
+            "tench": 0,
+            "english_springer": 1,
+            "cassette_player": 2,
+            "chainsaw": 3,
+            "church": 4,
+            "french_horn": 5,
+            "garbage_truck": 6,
+            "gas_pump": 7,
+            "golf_ball": 8,
+            "parachute": 9,
+        }

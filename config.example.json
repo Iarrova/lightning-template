@@ -1,14 +1,13 @@
 {
-    "seed": 42,
-    "dataset": "CIFAR10-128",
-    "batch_size": 32,
+    "dataset": "CIFAR10",
+    "batch_size": 64,
     "validation_size": 0.2,
     "augment": true,
-    "network": "VisionTransformer",
+    "network": "EfficientNetV2",
     "include_top": false,
     "weights": "imagenet",
     "learning_rate": 0.001,
-    "num_epochs": 2,
+    "num_epochs": 50,
     "weights_dir": "./models",
-    "weights_path": "vit-cifar10"
+    "weights_path": "EfficientNetV2_CIFAR10"
 }

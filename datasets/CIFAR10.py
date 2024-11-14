@@ -1,7 +1,8 @@
+from typing import Dict, Tuple
+
 import torch
 from torchvision import datasets
 from torchvision.transforms import v2
-from typing import Tuple, Dict
 
 from datasets.dataset import Dataset
 

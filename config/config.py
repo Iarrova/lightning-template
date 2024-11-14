@@ -1,22 +1,12 @@
-from enum import StrEnum
-from pydantic import BaseModel, Field
 from typing import Annotated
 
+from pydantic import BaseModel, Field
 
-class Datasets(StrEnum):
-    CIFAR10 = "CIFAR10"
-    CIFAR100 = "CIFAR100"
-    CIFAR10_128 = "CIFAR10-128"
-
-
-class Networks(StrEnum):
-    RESNET50 = "ResNet50"
-    EFFICIENTNETV2 = "EfficientNetV2"
-    VISION_TRANSFORMER = "VisionTransformer"
+from datasets.constants import Datasets
+from networks.constants import Networks
 
 
 class Config(BaseModel):
-    seed: int
     dataset: Datasets
     batch_size: int
     validation_size: Annotated[float, Field(strict=True, gt=0, lt=1)]

@@ -1,4 +1,4 @@
-from utils.config import Config, Networks
+from config.config import Config, Networks
 
 
 def load_network(config: Config, num_classes: int):
