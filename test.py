@@ -1,10 +1,10 @@
 from argparse import ArgumentParser, Namespace
 
 import lightning as L
+import matplotlib.pyplot as plt
+import seaborn as sns
 import torch
 
-# import seaborn as sns
-# import matplotlib.pyplot as plt
 from config.config import Config
 from config.json_parser import parse_json
 from model import Model
@@ -42,10 +42,7 @@ model = Model.load_from_checkpoint(
 trainer = L.Trainer(devices="auto", logger=False)
 trainer.test(model=model, dataloaders=test_loader)
 
-"""
-for metric_name, metric_instance in model.metrics.items():
-    print(f"{metric_name}: {metric_instance.compute()}")
-
+classes = dataset.get_class_mapping()
 fig, ax = plt.subplots(figsize=(8, 6))
 class_names = list(classes.keys())
 sns.heatmap(
@@ -57,11 +54,10 @@ sns.heatmap(
     yticklabels=class_names,
     ax=ax,
 )
-ax.tick_params(axis="x", labelrotation=45)
+ax.tick_params(axis="x", labelrotation=75)
 ax.set_xlabel("Predicted Labels")
 ax.set_ylabel("True Labels")
 ax.set_title("Confusion Matrix")
 
-plt.savefig("confusion_matrix.png")
+plt.savefig(f"logs/{config.weights_path}/confusion_matrix.png", bbox_inches="tight", dpi=300)
 plt.close(fig)
-"""

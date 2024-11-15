@@ -77,7 +77,10 @@ class Model(L.LightningModule):
         return self._shared_step(batch, "val")
 
     def test_step(self, batch, batch_idx):
-        return self._shared_step(batch, "test")
+        loss, output, target = self.step(batch)
+        self.metrics["test"].update(output, target)
+        self.confusion_matrix.update(output, target)
+        return loss
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.config.learning_rate)

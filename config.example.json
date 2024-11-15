@@ -1,6 +1,6 @@
 {
-    "dataset": "CIFAR10",
-    "batch_size": 64,
+    "dataset": "Imagenette",
+    "batch_size": 32,
     "validation_size": 0.2,
     "augment": true,
     "network": "EfficientNetV2",
@@ -9,5 +9,5 @@
     "learning_rate": 0.001,
     "num_epochs": 50,
     "weights_dir": "./models",
-    "weights_path": "EfficientNetV2_CIFAR10"
+    "weights_path": "EfficientNetV2_Imagenette"
 }

@@ -1,3 +1,5 @@
+import os
+
 from typing import Dict, Tuple
 
 import torch
@@ -18,10 +20,11 @@ class Imagenette(Dataset):
         num_workers: int = 15,
     ):
         super().__init__(batch_size, validation_size, augment, num_workers)
+        self.root = os.path.join(os.path.dirname(__file__), "..", "data")
 
     def get_train_dataset(self, transform_train: v2.Compose):
         train_dataset = datasets.Imagenette(
-            root="./data",
+            root=self.root,
             split="train",
             size="full",
             download=False,
@@ -31,7 +34,7 @@ class Imagenette(Dataset):
 
     def get_test_dataset(self, transform_test: v2.Compose):
         test_dataset = datasets.Imagenette(
-            root="./data",
+            root=self.root,
             split="val",
             size="full",
             download=False,
@@ -42,6 +45,7 @@ class Imagenette(Dataset):
     def get_transforms(self) -> Tuple[v2.Compose, v2.Compose]:
         normalize = [
             v2.ToImage(),
+            v2.Resize(size=(224, 224)),
             v2.ToDtype(torch.float32, scale=True),
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]

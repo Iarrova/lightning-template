@@ -164,5 +164,5 @@ cython_debug/
 .ruff_cache/
 .vscode/
 data/
-lightning_logs/
+logs/
 models/

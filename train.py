@@ -57,8 +57,8 @@ trainer = L.Trainer(
     accelerator="auto",
     devices="auto",
     logger=[
-        CSVLogger(save_dir=f"lightning_logs/{config.weights_path}"),
-        TensorBoardLogger(save_dir=f"lightning_logs/{config.weights_path}"),
+        CSVLogger(save_dir=f"logs/{config.weights_path}"),
+        TensorBoardLogger(save_dir=f"logs/{config.weights_path}"),
     ],
 )
 
