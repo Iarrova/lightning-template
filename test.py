@@ -7,9 +7,9 @@ import torch
 
 from config.config import Config
 from config.json_parser import parse_json
+from datasets.utils.load_dataset import load_dataset
 from model import Model
-from utils.load_dataset import load_dataset
-from utils.load_network import load_network
+from networks.utils.load_network import load_network
 
 L.seed_everything(42)
 
@@ -59,5 +59,7 @@ ax.set_xlabel("Predicted Labels")
 ax.set_ylabel("True Labels")
 ax.set_title("Confusion Matrix")
 
-plt.savefig(f"logs/{config.weights_path}/confusion_matrix.png", bbox_inches="tight", dpi=300)
+plt.savefig(
+    f"logs/{config.weights_path}/confusion_matrix.png", bbox_inches="tight", dpi=300
+)
 plt.close(fig)

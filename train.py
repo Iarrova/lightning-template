@@ -11,9 +11,9 @@ from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger
 
 from config.config import Config
 from config.json_parser import parse_json
+from datasets.utils.load_dataset import load_dataset
 from model import Model
-from utils.load_dataset import load_dataset
-from utils.load_network import load_network
+from networks.utils.load_network import load_network
 
 L.seed_everything(42)
 

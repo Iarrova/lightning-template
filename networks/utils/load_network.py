@@ -1,4 +1,5 @@
-from config.config import Config, Networks
+from config.config import Config
+from networks.constants import Networks
 
 
 def load_network(config: Config, num_classes: int):

@@ -8,7 +8,7 @@ from datasets.dataset import Dataset
 
 
 class CIFAR10(Dataset):
-    num_classes = 10
+    num_classes: int = 10
 
     def __init__(
         self,
@@ -24,7 +24,7 @@ class CIFAR10(Dataset):
             root="./data", train=True, download=True, transform=transform_train
         )
 
-        self.class_mapping = train_dataset.class_to_idx
+        self.class_mapping: Dict[str, int] = train_dataset.class_to_idx
         return train_dataset
 
     def get_test_dataset(self, transform_test: v2.Compose):

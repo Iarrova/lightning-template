@@ -31,3 +31,6 @@ class EfficientNetV2(nn.Module):
 
     def forward(self, batch):
         return self.model(batch)
+
+    def get_gradcam_layer(self):
+        return [self.model.features[-1][-1]]

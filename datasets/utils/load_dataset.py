@@ -1,4 +1,5 @@
-from config.config import Config, Datasets
+from config.config import Config
+from datasets.constants import Datasets
 
 
 def load_dataset(config: Config):

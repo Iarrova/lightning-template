@@ -1,5 +1,4 @@
 import os
-
 from typing import Dict, Tuple
 
 import torch
@@ -10,7 +9,7 @@ from datasets.dataset import Dataset
 
 
 class Imagenette(Dataset):
-    num_classes = 10
+    num_classes: int = 10
 
     def __init__(
         self,

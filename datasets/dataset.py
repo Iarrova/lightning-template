@@ -61,14 +61,14 @@ class Dataset(ABC):
 
         return train_loader, validation_loader
 
-    def generate_test_loader(self) -> DataLoader:
+    def generate_test_loader(self, shuffle: bool = False) -> DataLoader:
         _, transform_test = self.get_transforms()
         test_dataset = self.get_test_dataset(transform_test)
 
         test_loader = DataLoader(
             test_dataset,
             batch_size=self.batch_size,
-            shuffle=False,
+            shuffle=shuffle,
             num_workers=self.num_workers,
         )
 
