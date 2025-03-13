@@ -9,11 +9,11 @@ class DatasetRegistry:
     _registry: Dict[Datasets, Type[Dataset]] = {}
 
     @classmethod
-    def register(cls, name: str, dataset_class: Type[Dataset]) -> None:
+    def register(cls, name: Datasets, dataset_class: Type[Dataset]) -> None:
         cls._registry[name] = dataset_class
 
     @classmethod
-    def get(cls, name: str) -> Type[Dataset]:
+    def get(cls, name: Datasets) -> Type[Dataset]:
         if name not in cls._registry:
             raise ValueError(f"Dataset '{name}' not found in registry")
         return cls._registry[name]

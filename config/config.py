@@ -3,7 +3,7 @@ from typing import Annotated, Any, Dict, Optional
 from pydantic import BaseModel, Field
 
 from datasets import Datasets
-from networks.constants import Networks
+from networks import Networks
 
 
 class TrainingConfig(BaseModel):
