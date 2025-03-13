@@ -2,7 +2,7 @@ from typing import Annotated, Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
-from datasets.constants import Datasets
+from datasets import Datasets
 from networks.constants import Networks
 
 

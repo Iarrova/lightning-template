@@ -1,12 +1,19 @@
 from abc import ABC, abstractmethod
+from enum import StrEnum
 from typing import Any, Dict, Tuple
 
 import torch
 from torch.utils.data import DataLoader, random_split
 from torchvision.transforms.v2 import Compose
 
-from datasets.constants import Datasets
 from datasets.transforms import TransformFactory, TransformStrategy
+
+DATA_DIR = "./data"
+
+
+class Datasets(StrEnum):
+    CIFAR10 = "CIFAR10"
+    Imagenette = "Imagenette"
 
 
 class Dataset(ABC):
@@ -36,7 +43,7 @@ class Dataset(ABC):
 
     @abstractmethod
     def get_transforms(self) -> Tuple[Compose, Compose]:
-        pass
+        return self.transform_strategy.get_transforms(self.augment)
 
     @abstractmethod
     def get_class_mapping(self) -> Dict[str, int]:

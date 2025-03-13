@@ -1,11 +1,10 @@
 import os
-from typing import Dict, Tuple
+from typing import Dict
 
-import torch
 from torchvision import datasets
 from torchvision.transforms import v2
 
-from datasets.dataset import Dataset
+from datasets import DATA_DIR, Dataset, Datasets
 
 
 class Imagenette(Dataset):
@@ -13,13 +12,14 @@ class Imagenette(Dataset):
 
     def __init__(
         self,
+        dataset: Datasets = Datasets.Imagenette,
         batch_size: int = 128,
         validation_size: float = 0.2,
         augment: bool = True,
         num_workers: int = 15,
     ):
-        super().__init__(batch_size, validation_size, augment, num_workers)
-        self.root = os.path.join(os.path.dirname(__file__), "..", "data")
+        super().__init__(dataset, batch_size, validation_size, augment, num_workers)
+        self.root = os.path.join(os.path.dirname(__file__), "..", DATA_DIR)
 
     def get_train_dataset(self, transform_train: v2.Compose):
         train_dataset = datasets.Imagenette(
@@ -40,22 +40,6 @@ class Imagenette(Dataset):
             transform=transform_test,
         )
         return test_dataset
-
-    def get_transforms(self) -> Tuple[v2.Compose, v2.Compose]:
-        normalize = [
-            v2.ToImage(),
-            v2.Resize(size=(224, 224)),
-            v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-        transform_train = (
-            v2.Compose([v2.RandomHorizontalFlip(p=0.5)] + normalize)
-            if self.augment
-            else v2.Compose(normalize)
-        )
-        transform_test = v2.Compose(normalize)
-
-        return transform_train, transform_test
 
     def get_class_mapping(self) -> Dict[str, int]:
         return {

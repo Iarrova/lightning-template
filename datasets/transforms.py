@@ -3,6 +3,8 @@ from typing import Tuple
 import torch
 from torchvision.transforms import v2
 
+from datasets import Datasets
+
 
 class TransformStrategy:
     def get_transforms(self, augment: bool = True) -> Tuple[v2.Compose, v2.Compose]:
@@ -48,10 +50,10 @@ class ImagenetteTransforms(TransformStrategy):
 
 class TransformFactory:
     @staticmethod
-    def create(dataset_name: str) -> TransformStrategy:
-        if dataset_name == "CIFAR10":
+    def create(dataset_name: Datasets) -> TransformStrategy:
+        if dataset_name == Datasets.CIFAR10:
             return CIFAR10Transforms()
-        elif dataset_name == "Imagenette":
+        elif dataset_name == Datasets.Imagenette:
             return ImagenetteTransforms()
         else:
             raise ValueError(f"Unknown dataset: {dataset_name}")
