@@ -17,9 +17,7 @@ from networks.utils.load_network import load_network
 
 L.seed_everything(42)
 
-parser: ArgumentParser = ArgumentParser(
-    description="Template for PyTorch Lightning prototyping."
-)
+parser: ArgumentParser = ArgumentParser(description="Template for PyTorch Lightning prototyping.")
 parser.add_argument(
     "--config-path",
     help="The path to the configuration file to use in training/testing.",
@@ -62,6 +60,4 @@ trainer = L.Trainer(
     ],
 )
 
-trainer.fit(
-    model=model, train_dataloaders=train_loader, val_dataloaders=validation_loader
-)
+trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=validation_loader)

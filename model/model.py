@@ -20,15 +20,9 @@ class Model(L.LightningModule):
     def _create_metrics(self):
         self.metrics = nn.ModuleDict(
             {
-                "_train": MetricsFactory.create_classification_metrics(
-                    self.num_classes, prefix="train_"
-                ),
-                "val": MetricsFactory.create_classification_metrics(
-                    self.num_classes, prefix="val_"
-                ),
-                "test": MetricsFactory.create_classification_metrics(
-                    self.num_classes, prefix="test_"
-                ),
+                "_train": MetricsFactory.create_classification_metrics(self.num_classes, prefix="train_"),
+                "val": MetricsFactory.create_classification_metrics(self.num_classes, prefix="val_"),
+                "test": MetricsFactory.create_classification_metrics(self.num_classes, prefix="test_"),
             }
         )
 
@@ -49,14 +43,7 @@ class Model(L.LightningModule):
         metrics = self.metrics[stage]
         metrics.update(output, target)
 
-        self.log(
-            f"{stage}_loss",
-            loss,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
+        self.log(f"{stage}_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
         self.log_dict(metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         return loss
@@ -74,16 +61,8 @@ class Model(L.LightningModule):
         self.confusion_matrix.update(output, target)
         self.roc_curve.update(output, target)
 
-        self.log(
-            "test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True
-        )
-        self.log_dict(
-            self.metrics["test"],
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )
+        self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log_dict(self.metrics["test"], on_step=False, on_epoch=True, prog_bar=True, logger=True)
 
         return loss
 

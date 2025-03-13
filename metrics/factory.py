@@ -15,9 +15,7 @@ from torchmetrics.classification import (
 
 class MetricsFactory:
     @staticmethod
-    def create_classification_metrics(
-        num_classes: int, prefix: str = ""
-    ) -> MetricCollection:
+    def create_classification_metrics(num_classes: int, prefix: str = "") -> MetricCollection:
         task = "multiclass" if num_classes > 2 else "binary"
 
         metrics = {
@@ -36,14 +34,8 @@ class MetricsFactory:
         return MetricCollection(metrics, prefix=prefix)
 
     @staticmethod
-    def create_confusion_matrix(
-        num_classes: int, normalize: Optional[str] = None
-    ) -> ConfusionMatrix:
-        return ConfusionMatrix(
-            task="multiclass",
-            num_classes=num_classes,
-            normalize=normalize,
-        )
+    def create_confusion_matrix(num_classes: int, normalize: Optional[str] = None) -> ConfusionMatrix:
+        return ConfusionMatrix(task="multiclass", num_classes=num_classes, normalize=normalize)
 
     @staticmethod
     def create_roc_curve(num_classes: int) -> ROC:

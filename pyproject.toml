@@ -13,3 +13,6 @@ dependencies = [
     "torch>=2.5.1",
     "torchvision>=0.20.1",
 ]
+
+[tool.ruff]
+line-length = 110

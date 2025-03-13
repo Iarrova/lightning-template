@@ -10,9 +10,7 @@ class Optimizers(StrEnum):
 
 class OptimizerFactory:
     @staticmethod
-    def create(
-        params, optimizer: Optimizers, learning_rate: float, **kwargs
-    ) -> torch.optim.Optimizer:
+    def create(params, optimizer: Optimizers, learning_rate: float, **kwargs) -> torch.optim.Optimizer:
         if optimizer == Optimizers.ADAM:
             return optim.Adam(params, lr=learning_rate, **kwargs)
         else:

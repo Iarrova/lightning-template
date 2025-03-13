@@ -30,14 +30,7 @@ NetworkRegistry.register("VisionTransformer", VisionTransformer)
 class NetworkFactory:
     @staticmethod
     def create(
-        name: Networks,
-        include_top: bool = True,
-        weights: str = None,
-        num_classes: int = 1000,
+        name: Networks, include_top: bool = True, weights: str = None, num_classes: int = 1000
     ) -> nn.Module:
         network_class = NetworkRegistry.get(name)
-        return network_class(
-            include_top=include_top,
-            weights=weights,
-            num_classes=num_classes,
-        )
+        return network_class(include_top=include_top, weights=weights, num_classes=num_classes)

@@ -13,9 +13,7 @@ from networks.utils.load_network import load_network
 
 L.seed_everything(42)
 
-parser: ArgumentParser = ArgumentParser(
-    description="Template for PyTorch Lightning prototyping."
-)
+parser: ArgumentParser = ArgumentParser(description="Template for PyTorch Lightning prototyping.")
 parser.add_argument(
     "--config-path",
     help="The path to the configuration file to use in training/testing.",
@@ -59,7 +57,5 @@ ax.set_xlabel("Predicted Labels")
 ax.set_ylabel("True Labels")
 ax.set_title("Confusion Matrix")
 
-plt.savefig(
-    f"logs/{config.weights_path}/confusion_matrix.png", bbox_inches="tight", dpi=300
-)
+plt.savefig(f"logs/{config.weights_path}/confusion_matrix.png", bbox_inches="tight", dpi=300)
 plt.close(fig)

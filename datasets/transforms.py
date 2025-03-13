@@ -20,9 +20,7 @@ class CIFAR10Transforms(TransformStrategy):
         ]
 
         transform_train = (
-            v2.Compose([v2.RandomHorizontalFlip(p=0.5)] + normalize)
-            if augment
-            else v2.Compose(normalize)
+            v2.Compose([v2.RandomHorizontalFlip(p=0.5)] + normalize) if augment else v2.Compose(normalize)
         )
         transform_test = v2.Compose(normalize)
 
@@ -39,9 +37,7 @@ class ImagenetteTransforms(TransformStrategy):
         ]
 
         transform_train = (
-            v2.Compose([v2.RandomHorizontalFlip(p=0.5)] + normalize)
-            if augment
-            else v2.Compose(normalize)
+            v2.Compose([v2.RandomHorizontalFlip(p=0.5)] + normalize) if augment else v2.Compose(normalize)
         )
         transform_test = v2.Compose(normalize)
 
