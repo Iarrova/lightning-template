@@ -8,7 +8,7 @@ from datasets import DATA_DIR, Dataset, Datasets
 
 
 class Imagenette(Dataset):
-    num_classes: int = 10
+    NUM_CLASSES: int = 10
 
     def __init__(
         self,

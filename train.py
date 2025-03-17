@@ -32,7 +32,7 @@ def train(config: Config) -> None:
         print("[INFO] CUDA is not available. Training on CPU...")
 
     dataset = DatasetFactory.create(
-        name=config.dataset.dataset,
+        dataset=config.dataset.dataset,
         batch_size=config.training.batch_size,
         validation_size=config.training.validation_size,
         augment=config.dataset.augment,
@@ -108,7 +108,7 @@ def train(config: Config) -> None:
         metrics_file = os.path.join(log_dir, "csv_logs", "metrics.csv")
         if os.path.exists(metrics_file):
             print("[INFO] Visualizing training metrics...")
-            fig = MetricsVisualizer.plot_training_metrics(
+            MetricsVisualizer.plot_training_metrics(
                 metrics_file=metrics_file,
                 save_path=os.path.join(log_dir, "training_metrics.png"),
             )

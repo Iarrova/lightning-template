@@ -9,7 +9,9 @@ dependencies = [
     "lightning>=2.4.0",
     "matplotlib>=3.9.3",
     "pydantic>=2.10.3",
+    "rich>=13.9.4",
     "seaborn>=0.13.2",
+    "tensorboard>=2.19.0",
     "torch>=2.5.1",
     "torchvision>=0.20.1",
 ]

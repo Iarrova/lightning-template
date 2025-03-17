@@ -5,8 +5,8 @@
         "learning_rate": 0.001,
         "num_epochs": 50,
         "early_stopping_patience": 10,
-        "optimizer": "adam",
-        "scheduler": "reduce_on_plateau",
+        "optimizer": "Adam",
+        "scheduler": "ReduceOnPlateau",
         "scheduler_patience": 5,
         "scheduler_factor": 0.1,
         "resume_training": false

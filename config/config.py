@@ -2,7 +2,9 @@ from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field
 
-from datasets import Datasets
+from datasets.enums import Datasets
+from model.optimizers import Optimizers
+from model.schedulers import Schedulers
 from networks import Networks
 
 
@@ -12,8 +14,8 @@ class TrainingConfig(BaseModel):
     learning_rate: Annotated[float, Field(strict=True, gt=0, default=0.001)]
     num_epochs: Annotated[int, Field(strict=True, gt=0, default=10)]
     early_stopping_patience: Annotated[int, Field(strict=True, gt=0, default=10)]
-    optimizer: Annotated[str, Field(default="adam")]
-    scheduler: Annotated[str, Field(default="reduce_on_plateau")]
+    optimizer: Annotated[Optimizers, Field(default="Adam")]
+    scheduler: Annotated[Schedulers, Field(default="ReduceOnPlateau")]
     scheduler_patience: Annotated[int, Field(strict=True, gt=0, default=5)]
     scheduler_factor: Annotated[float, Field(strict=True, gt=0, default=0.1)]
     resume_training: Annotated[bool, Field(default=False)]

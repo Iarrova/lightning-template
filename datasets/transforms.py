@@ -3,7 +3,7 @@ from typing import Tuple
 import torch
 from torchvision.transforms import v2
 
-from datasets import Datasets
+from datasets.enums import Datasets
 
 
 class TransformStrategy:

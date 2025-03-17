@@ -1,19 +1,14 @@
 from abc import ABC, abstractmethod
-from enum import StrEnum
 from typing import Any, Dict, Tuple
 
 import torch
 from torch.utils.data import DataLoader, random_split
 from torchvision.transforms.v2 import Compose
 
+from datasets.enums import Datasets
 from datasets.transforms import TransformFactory, TransformStrategy
 
 DATA_DIR = "./data"
-
-
-class Datasets(StrEnum):
-    CIFAR10 = "CIFAR10"
-    Imagenette = "Imagenette"
 
 
 class Dataset(ABC):
@@ -41,7 +36,6 @@ class Dataset(ABC):
     def get_test_dataset(self, transform_test: Compose) -> Any:
         pass
 
-    @abstractmethod
     def get_transforms(self) -> Tuple[Compose, Compose]:
         return self.transform_strategy.get_transforms(self.augment)
 

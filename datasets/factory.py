@@ -26,15 +26,15 @@ DatasetRegistry.register(Datasets.Imagenette, Imagenette)
 class DatasetFactory:
     @staticmethod
     def create(
-        name: Datasets,
+        dataset: Datasets,
         batch_size: int = 128,
         validation_size: float = 0.2,
         augment: bool = True,
         num_workers: int = 15,
     ) -> Dataset:
-        dataset_class = DatasetRegistry.get(name)
+        dataset_class = DatasetRegistry.get(dataset)
         return dataset_class(
-            name=name,
+            dataset=dataset,
             batch_size=batch_size,
             validation_size=validation_size,
             augment=augment,
