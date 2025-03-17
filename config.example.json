@@ -1,13 +1,34 @@
 {
-    "dataset": "Imagenette",
-    "batch_size": 32,
-    "validation_size": 0.2,
-    "augment": true,
-    "network": "EfficientNetV2",
-    "include_top": false,
-    "weights": "imagenet",
-    "learning_rate": 0.001,
-    "num_epochs": 50,
-    "weights_dir": "./models",
-    "weights_path": "EfficientNetV2_Imagenette"
+    "training": {
+        "batch_size": 32,
+        "validation_size": 0.2,
+        "learning_rate": 0.001,
+        "num_epochs": 50,
+        "early_stopping_patience": 10,
+        "optimizer": "adam",
+        "scheduler": "reduce_on_plateau",
+        "scheduler_patience": 5,
+        "scheduler_factor": 0.1,
+        "resume_training": false
+    },
+    "dataset": {
+        "dataset": "Imagenette",
+        "augment": true,
+        "num_workers": 15
+    },
+    "network": {
+        "network": "EfficientNetV2",
+        "include_top": false,
+        "pytorch_weights": null,
+        "lightning_checkpoint": null
+    },
+    "logging": {
+        "tensorboard": true,
+        "csv": true,
+        "log_dir": "./logs",
+        "weights_dir": "./models",
+        "weights_path": "EfficientNetV2_Imagenette"
+    },
+    "seed": 42,
+    "mixed_precision": true
 }

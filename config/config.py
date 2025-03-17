@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Dict, Optional
+from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,7 @@ class TrainingConfig(BaseModel):
     scheduler: Annotated[str, Field(default="reduce_on_plateau")]
     scheduler_patience: Annotated[int, Field(strict=True, gt=0, default=5)]
     scheduler_factor: Annotated[float, Field(strict=True, gt=0, default=0.1)]
+    resume_training: Annotated[bool, Field(default=False)]
 
 
 class DatasetConfig(BaseModel):
@@ -28,6 +29,7 @@ class NetworkConfig(BaseModel):
     network: Networks
     include_top: Annotated[bool, Field(default=True)]
     pytorch_weights: Annotated[Optional[str], Field(default=None)]
+    lightning_checkpoint: Annotated[Optional[str], Field(default=None)]
 
 
 class LoggingConfig(BaseModel):
@@ -45,4 +47,3 @@ class Config(BaseModel):
     logging: LoggingConfig
     seed: int = 42
     mixed_precision: bool = True
-    custom_metrics: Dict[str, Any] = Field(default_factory=dict)

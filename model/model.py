@@ -16,6 +16,7 @@ class Model(L.LightningModule):
         self.num_classes = num_classes
 
         self._create_metrics()
+        self.save_hyperparameters(ignore=["network"])
 
     def _create_metrics(self):
         self.metrics = nn.ModuleDict(
