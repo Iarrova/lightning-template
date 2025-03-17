@@ -1,61 +1,112 @@
-from argparse import ArgumentParser, Namespace
+import os
+from argparse import ArgumentParser
 
 import lightning as L
-import matplotlib.pyplot as plt
-import seaborn as sns
 import torch
+from lightning.pytorch.loggers import CSVLogger
 
 from config.config import Config
-from config.json_parser import parse_json
-from datasets.utils.load_dataset import load_dataset
-from model import Model
-from networks.utils.load_network import load_network
+from config.json_parser import ConfigParser
+from datasets.factory import DatasetFactory
+from metrics.visualization import MetricsVisualizer
+from model.model import Model
+from networks.factory import NetworkFactory
 
-L.seed_everything(42)
 
-parser: ArgumentParser = ArgumentParser(description="Template for PyTorch Lightning prototyping.")
-parser.add_argument(
-    "--config-path",
-    help="The path to the configuration file to use in training/testing.",
-)
-args: Namespace = parser.parse_args()
+def test(config: Config, checkpoint_path: str = None):
+    L.seed_everything(config.seed)
 
-config: Config = parse_json(args.config_path)
+    if torch.cuda.is_available():
+        print("[INFO] CUDA is available! Testing on GPU...")
+    else:
+        print("[INFO] CUDA is not available. Testing on CPU...")
 
-if torch.cuda.is_available():
-    print("[INFO] CUDA is available! Training on GPU...")
-else:
-    print("[INFO] CUDA is not available. Training on CPU...")
+    dataset = DatasetFactory.create(
+        name=config.dataset.dataset,
+        batch_size=config.training.batch_size,
+        validation_size=config.training.validation_size,
+        augment=False,
+        num_workers=config.dataset.num_workers,
+    )
 
-dataset = load_dataset(config)
-test_loader = dataset.generate_test_loader()
+    test_loader = dataset.generate_test_loader()
 
-network = load_network(config, dataset.num_classes)
+    network = NetworkFactory.create(
+        name=config.network.network,
+        include_top=config.network.include_top,
+        weights=None,
+        num_classes=dataset.NUM_CLASSES,
+    )
 
-weights_path = f"{config.weights_dir}/{config.weights_path}.ckpt"
-model = Model.load_from_checkpoint(
-    weights_path, network=network, config=config, num_classes=dataset.num_classes
-)
+    if checkpoint_path is None:
+        checkpoint_path = os.path.join(
+            config.logging.weights_dir,
+            f"{config.logging.weights_path}.ckpt",
+        )
 
-trainer = L.Trainer(devices="auto", logger=False)
-trainer.test(model=model, dataloaders=test_loader)
+    if not os.path.exists(checkpoint_path):
+        raise FileNotFoundError(f"Checkpoint not found at {checkpoint_path}")
 
-classes = dataset.get_class_mapping()
-fig, ax = plt.subplots(figsize=(8, 6))
-class_names = list(classes.keys())
-sns.heatmap(
-    model.confusion_matrix.compute(),
-    annot=True,
-    fmt="d",
-    cmap="Blues",
-    xticklabels=class_names,
-    yticklabels=class_names,
-    ax=ax,
-)
-ax.tick_params(axis="x", labelrotation=75)
-ax.set_xlabel("Predicted Labels")
-ax.set_ylabel("True Labels")
-ax.set_title("Confusion Matrix")
+    model = Model.load_from_checkpoint(
+        checkpoint_path=checkpoint_path,
+        network=network,
+        config=config,
+        num_classes=dataset.NUM_CLASSES,
+    )
 
-plt.savefig(f"logs/{config.weights_path}/confusion_matrix.png", bbox_inches="tight", dpi=300)
-plt.close(fig)
+    log_dir = os.path.join(config.logging.log_dir, config.logging.weights_path)
+    os.makedirs(log_dir, exist_ok=True)
+
+    trainer = L.Trainer(
+        accelerator="auto",
+        devices="auto",
+        logger=CSVLogger(save_dir=os.path.join(log_dir, "test_results")),
+    )
+
+    print(f"[INFO] Testing model from {checkpoint_path}")
+    print(f"[INFO] Testing on {len(test_loader.dataset)} samples")
+    trainer.test(model=model, dataloaders=test_loader)
+
+    class_mapping = dataset.get_class_mapping()
+    class_names = list(class_mapping.keys())
+
+    print("[INFO] Visualizing confusion matrix...")
+    fig_cm = MetricsVisualizer.plot_confusion_matrix(
+        confusion_matrix=model.confusion_matrix,
+        class_names=class_names,
+        save_path=os.path.join(log_dir, "confusion_matrix.png"),
+    )
+
+    print("[INFO] Visualizing ROC curves...")
+    fig_roc = MetricsVisualizer.plot_roc_curve(
+        roc=model.roc_curve,
+        class_names=class_names,
+        save_path=os.path.join(log_dir, "roc_curves.png"),
+    )
+
+    print("[INFO] Test results:")
+    metrics = model.metrics["test"].compute()
+    for name, value in metrics.items():
+        print(f"[INFO] {name}: {value:.4f}")
+
+
+def main():
+    parser = ArgumentParser(description="Testing script for image classification.")
+    parser.add_argument(
+        "--config-path",
+        required=True,
+        help="Path to the configuration file.",
+    )
+    parser.add_argument(
+        "--checkpoint-path",
+        help="Path to model checkpoint. If not provided, uses the default path from config.",
+    )
+    args = parser.parse_args()
+
+    config = ConfigParser.parse_json(args.config_path)
+
+    test(config, args.checkpoint_path)
+
+
+if __name__ == "__main__":
+    main()

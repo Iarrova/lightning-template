@@ -44,5 +44,5 @@ class Config(BaseModel):
     network: NetworkConfig
     logging: LoggingConfig
     seed: int = 42
-    mixed_precission: bool = True
+    mixed_precision: bool = True
     custom_metrics: Dict[str, Any] = Field(default_factory=dict)
