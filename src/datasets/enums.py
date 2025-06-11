@@ -1,6 +1,6 @@
 from enum import StrEnum
 
 
-class Datasets(StrEnum):
+class Dataset(StrEnum):
     CIFAR10 = "CIFAR10"
     Imagenette = "Imagenette"

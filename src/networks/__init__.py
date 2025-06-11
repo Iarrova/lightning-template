@@ -6,7 +6,7 @@ import torch
 from torch import nn
 
 
-class Networks(StrEnum):
+class Network(StrEnum):
     RESNET50 = "ResNet50"
     EFFICIENTNETV2 = "EfficientNetV2"
     VISION_TRANSFORMER = "VisionTransformer"

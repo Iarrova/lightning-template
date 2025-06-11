@@ -6,16 +6,16 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import _LRScheduler
 
 
-class Schedulers(StrEnum):
+class Scheduler(StrEnum):
     REDUCE_ON_PLATEAU = "ReduceOnPlateau"
 
 
 class SchedulerFactory:
     @staticmethod
     def create(
-        optimizer: torch.optim.Optimizer, scheduler: Schedulers, **kwargs
+        optimizer: torch.optim.Optimizer, scheduler: Scheduler, **kwargs
     ) -> Union[_LRScheduler, Dict[str, Any]]:
-        if scheduler == Schedulers.REDUCE_ON_PLATEAU:
+        if scheduler == Scheduler.REDUCE_ON_PLATEAU:
             return {
                 "scheduler": optim.lr_scheduler.ReduceLROnPlateau(
                     optimizer,

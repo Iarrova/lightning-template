@@ -1,68 +1,61 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Tuple
+from typing import Dict, Tuple
 
 import torch
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision.transforms.v2 import Compose
 
-from datasets.enums import Datasets
+from config.config import DatasetConfig
 from datasets.transforms import TransformFactory, TransformStrategy
 
-DATA_DIR = "./data"
 
-
-class Dataset(ABC):
+class BaseDataset(ABC):
     NUM_CLASSES: int
 
-    def __init__(
-        self,
-        dataset: Datasets,
-        batch_size: int = 32,
-        validation_size: float = 0.2,
-        augment: bool = True,
-        num_workers: int = 15,
-    ):
-        self.batch_size: int = batch_size
-        self.validation_size: float = validation_size
-        self.augment: bool = augment
-        self.num_workers: int = num_workers
-        self.transform_strategy: TransformStrategy = TransformFactory.create(dataset)
+    def __init__(self, config: DatasetConfig):
+        self.config = config
+        self.transform_strategy: TransformStrategy = TransformFactory.create(config.dataset)
+
+    @property
+    def num_classes(self) -> int:
+        return self.NUM_CLASSES
 
     @abstractmethod
-    def get_train_dataset(self, transform_train: Compose) -> Any:
+    def get_train_dataset(self, transform_train: Compose) -> Dataset:
         pass
 
     @abstractmethod
-    def get_test_dataset(self, transform_test: Compose) -> Any:
+    def get_test_dataset(self, transform_test: Compose) -> Dataset:
         pass
-
-    def get_transforms(self) -> Tuple[Compose, Compose]:
-        return self.transform_strategy.get_transforms(self.augment)
 
     @abstractmethod
     def get_class_mapping(self) -> Dict[str, int]:
         pass
+
+    def get_transforms(self) -> Tuple[Compose, Compose]:
+        return self.transform_strategy.get_transforms(self.config.augment)
 
     def generate_train_loaders(self) -> Tuple[DataLoader, DataLoader]:
         transform_train, _ = self.get_transforms()
         train_dataset = self.get_train_dataset(transform_train)
 
         train_set, validation_set = random_split(
-            train_dataset, lengths=[1 - self.validation_size, self.validation_size]
+            train_dataset, lengths=[1 - self.config.validation_size, self.config.validation_size]
         )
 
         train_loader = DataLoader(
             train_set,
-            batch_size=self.batch_size,
+            batch_size=self.config.batch_size,
             shuffle=True,
-            num_workers=self.num_workers,
+            num_workers=self.config.num_workers,
             pin_memory=torch.cuda.is_available(),
         )
+
         validation_loader = DataLoader(
             validation_set,
-            batch_size=self.batch_size,
+            batch_size=self.config.batch_size,
             shuffle=False,
-            num_workers=self.num_workers,
+            num_workers=self.config.num_workers,
             pin_memory=torch.cuda.is_available(),
         )
 
@@ -74,9 +67,9 @@ class Dataset(ABC):
 
         test_loader = DataLoader(
             test_dataset,
-            batch_size=self.batch_size,
+            batch_size=self.config.batch_size,
             shuffle=shuffle,
-            num_workers=self.num_workers,
+            num_workers=self.config.num_workers,
             pin_memory=torch.cuda.is_available(),
         )
 
