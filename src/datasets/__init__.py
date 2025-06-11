@@ -5,8 +5,8 @@ import torch
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision.transforms.v2 import Compose
 
-from config.config import DatasetConfig
-from datasets.transforms import TransformFactory, TransformStrategy
+from src.config.config import DatasetConfig
+from src.datasets.transforms import TransformFactory, TransformStrategy
 
 
 class BaseDataset(ABC):

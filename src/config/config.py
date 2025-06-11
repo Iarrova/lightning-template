@@ -4,11 +4,11 @@ from typing import Annotated, Literal, Optional
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic.types import PositiveFloat, PositiveInt
 
-from datasets.enums import Dataset
-from exceptions import ConfigurationError
-from model.optimizers import Optimizer
-from model.schedulers import Scheduler
-from networks import Network
+from src.datasets.enums import Dataset
+from src.exceptions import ConfigurationError
+from src.model.optimizers import Optimizer
+from src.model.schedulers import Scheduler
+from src.networks.enums import Network
 
 
 class TrainingConfig(BaseModel):
@@ -42,6 +42,7 @@ class DatasetConfig(BaseModel):
 
 class NetworkConfig(BaseModel):
     network: Network
+    include_top: Annotated[bool, Field(default=True)]
 
 
 class WeightsConfig(BaseModel):

@@ -5,8 +5,8 @@ from torch.utils.data import Dataset
 from torchvision import datasets
 from torchvision.transforms import v2
 
-from config.config import DatasetConfig
-from datasets import BaseDataset
+from src.config.config import DatasetConfig
+from src.datasets import BaseDataset
 
 
 class ImagenetteDataset(BaseDataset):

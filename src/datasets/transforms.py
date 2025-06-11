@@ -4,7 +4,7 @@ from typing import Dict, Tuple, Type
 import torch
 from torchvision.transforms import v2
 
-from datasets.enums import Dataset
+from src.datasets.enums import Dataset
 
 
 class TransformStrategy(ABC):

@@ -2,9 +2,9 @@ import json
 import os
 from typing import Any, Dict
 
-from config.config import Config
+from src.config.config import Config
 from src.exceptions import ConfigurationError
-from utils.logging import setup_logger
+from src.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
 

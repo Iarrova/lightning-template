@@ -1,10 +1,10 @@
 from typing import Dict, Type
 
-from config.config import DatasetConfig
-from datasets import BaseDataset
-from datasets.CIFAR10 import CIFAR10Dataset
-from datasets.enums import Dataset
-from datasets.Imagenette import ImagenetteDataset
+from src.config.config import DatasetConfig
+from src.datasets import BaseDataset
+from src.datasets.CIFAR10 import CIFAR10Dataset
+from src.datasets.enums import Dataset
+from src.datasets.Imagenette import ImagenetteDataset
 
 
 class DatasetRegistry:
