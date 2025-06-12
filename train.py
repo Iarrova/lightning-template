@@ -31,33 +31,17 @@ def train(config: Config) -> None:
     else:
         print("[INFO] CUDA is not available. Training on CPU...")
 
-    dataset = DatasetFactory.create(
-        dataset=config.dataset.dataset,
-        batch_size=config.training.batch_size,
-        validation_size=config.training.validation_size,
-        augment=config.dataset.augment,
-        num_workers=config.dataset.num_workers,
-    )
-
+    dataset = DatasetFactory.create(config.dataset)
     train_loader, validation_loader = dataset.generate_train_loaders()
 
-    network = NetworkFactory.create(
-        name=config.network.network,
-        include_top=config.network.include_top,
-        weights=config.network.pytorch_weights,
-        num_classes=dataset.NUM_CLASSES,
-    )
+    network = NetworkFactory.create(config.network, config.weights, dataset.num_classes)
 
     model = Model(network=network, config=config, num_classes=dataset.NUM_CLASSES)
 
-    log_dir = os.path.join(config.logging.log_dir, config.logging.weights_path)
-    os.makedirs(log_dir, exist_ok=True)
-    os.makedirs(config.logging.weights_dir, exist_ok=True)
-
     callbacks = [
         ModelCheckpoint(
-            dirpath=config.logging.weights_dir,
-            filename=config.logging.weights_path,
+            dirpath=config.weights.save_weights_path.parent,
+            filename=config.weights.save_weights_path.stem,
             monitor="val_loss",
             mode="min",
             verbose=True,
@@ -71,6 +55,7 @@ def train(config: Config) -> None:
     ]
 
     loggers = []
+    log_dir = config.logging.log_dir / config.weights.save_weights_path.parent
     if config.logging.tensorboard:
         loggers.append(TensorBoardLogger(save_dir=log_dir, name="tensorboard"))
     if config.logging.csv:
@@ -91,10 +76,10 @@ def train(config: Config) -> None:
     print(f"[INFO] Training model with {dataset.NUM_CLASSES} classes")
     print(f"[INFO] Training on {len(train_loader.dataset)} samples")
     print(f"[INFO] Validating on {len(validation_loader.dataset)} samples")
-    print(f"[INFO] Using batch size {config.training.batch_size}")
+    print(f"[INFO] Using batch size {config.dataset.batch_size}")
     print(f"[INFO] Using learning rate {config.training.learning_rate}")
     print(f"[INFO] Using network {config.network.network}")
-    print(f"[INFO] Using weights {config.network.pytorch_weights}")
+    print(f"[INFO] Using weights {config.weights.pretrained_weights}")
     print(f"[INFO] Using optimizer {config.training.optimizer}")
     print(f"[INFO] Using scheduler {config.training.scheduler}")
     print(f"[INFO] Using mixed precision: {config.mixed_precision}")

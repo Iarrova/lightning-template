@@ -23,7 +23,7 @@ class SchedulerFactory:
                     factor=kwargs.get("factor", 0.1),
                     patience=kwargs.get("patience", 5),
                     cooldown=kwargs.get("cooldown", 1),
-                    verbose=True,
+                    verbose="True",
                 ),
                 "monitor": kwargs.get("monitor", "val_loss"),
                 "interval": kwargs.get("interval", "epoch"),

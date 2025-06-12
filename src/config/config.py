@@ -84,3 +84,10 @@ class Config(BaseModel):
     logging: LoggingConfig
     seed: Annotated[PositiveInt, Field(default=42)]
     mixed_precision: Annotated[bool, Field(default=True)]
+
+    @model_validator(mode="after")
+    def create_log_dir(self) -> "Config":
+        log_dir = self.logging.log_dir / self.weights.save_weights_path.parent
+        if not log_dir.exists():
+            log_dir.mkdir(parents=True, exist_ok=True)
+        return self

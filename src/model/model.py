@@ -1,10 +1,10 @@
 import lightning as L
 import torch.nn as nn
 
-from config.config import Config
-from metrics.factory import MetricsFactory
-from model.optimizers import OptimizerFactory
-from model.schedulers import SchedulerFactory
+from src.config.config import Config
+from src.metrics.factory import MetricsFactory
+from src.model.optimizers import OptimizerFactory
+from src.model.schedulers import SchedulerFactory
 
 
 class Model(L.LightningModule):
@@ -30,8 +30,8 @@ class Model(L.LightningModule):
         self.confusion_matrix = MetricsFactory.create_confusion_matrix(self.num_classes)
         self.roc_curve = MetricsFactory.create_roc_curve(self.num_classes)
 
-    def forward(self, batch):
-        return self.network(batch)
+    def forward(self, x):
+        return self.network(x)
 
     def step(self, batch):
         inputs, target = batch
