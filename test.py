@@ -5,15 +5,15 @@ import lightning as L
 import torch
 from lightning.pytorch.loggers import CSVLogger
 
-from config.config import Config
-from config.json_parser import ConfigParser
-from datasets.factory import DatasetFactory
-from metrics.visualization import MetricsVisualizer
-from model.model import Model
-from networks.factory import NetworkFactory
+from src.config.config import Config
+from src.config.json_parser import ConfigParser
+from src.datasets.factory import DatasetFactory
+from src.metrics.visualizer import MetricsVisualizer
+from src.model.model import Model
+from src.networks.factory import NetworkFactory
 
 
-def test(config: Config, checkpoint_path: str = None):
+def test(config: Config):
     L.seed_everything(config.seed)
 
     if torch.cuda.is_available():
@@ -21,49 +21,29 @@ def test(config: Config, checkpoint_path: str = None):
     else:
         print("[INFO] CUDA is not available. Testing on CPU...")
 
-    dataset = DatasetFactory.create(
-        name=config.dataset.dataset,
-        batch_size=config.training.batch_size,
-        validation_size=config.training.validation_size,
-        augment=False,
-        num_workers=config.dataset.num_workers,
-    )
-
+    dataset = DatasetFactory.create(config.dataset)
     test_loader = dataset.generate_test_loader()
 
-    network = NetworkFactory.create(
-        name=config.network.network,
-        include_top=config.network.include_top,
-        weights=None,
-        num_classes=dataset.NUM_CLASSES,
-    )
+    network = NetworkFactory.create(config.network, config.weights, dataset.num_classes)
 
-    if checkpoint_path is None:
-        checkpoint_path = os.path.join(
-            config.logging.weights_dir,
-            f"{config.logging.weights_path}.ckpt",
-        )
-
-    if not os.path.exists(checkpoint_path):
-        raise FileNotFoundError(f"Checkpoint not found at {checkpoint_path}")
+    if not os.path.exists(config.weights.save_weights_path):
+        raise FileNotFoundError(f"Checkpoint not found at {config.weights.save_weights_path}")
 
     model = Model.load_from_checkpoint(
-        checkpoint_path=checkpoint_path,
+        checkpoint_path=config.weights.save_weights_path,
         network=network,
         config=config,
         num_classes=dataset.NUM_CLASSES,
     )
 
-    log_dir = os.path.join(config.logging.log_dir, config.logging.weights_path)
-    os.makedirs(log_dir, exist_ok=True)
-
+    log_dir = config.logging.log_dir / config.weights.save_weights_path.parent
     trainer = L.Trainer(
         accelerator="auto",
         devices="auto",
         logger=CSVLogger(save_dir=os.path.join(log_dir, "test_results")),
     )
 
-    print(f"[INFO] Testing model from {checkpoint_path}")
+    print(f"[INFO] Testing model from {config.weights.save_weights_path}")
     print(f"[INFO] Testing on {len(test_loader.dataset)} samples")
     trainer.test(model=model, dataloaders=test_loader)
 
@@ -97,15 +77,12 @@ def main():
         required=True,
         help="Path to the configuration file.",
     )
-    parser.add_argument(
-        "--checkpoint-path",
-        help="Path to model checkpoint. If not provided, uses the default path from config.",
-    )
+
     args = parser.parse_args()
 
     config = ConfigParser.parse_json(args.config_path)
 
-    test(config, args.checkpoint_path)
+    test(config)
 
 
 if __name__ == "__main__":

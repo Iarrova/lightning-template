@@ -12,12 +12,12 @@ from lightning.pytorch.callbacks import (
 )
 from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger
 
-from config.config import Config
-from config.json_parser import ConfigParser
-from datasets.factory import DatasetFactory
-from metrics.visualizer import MetricsVisualizer
-from model.model import Model
-from networks.factory import NetworkFactory
+from src.config.config import Config
+from src.config.json_parser import ConfigParser
+from src.datasets.factory import DatasetFactory
+from src.metrics.visualizer import MetricsVisualizer
+from src.model.model import Model
+from src.networks.factory import NetworkFactory
 
 
 def train(config: Config) -> None:
