@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,57 +12,32 @@ class MetricsVisualizer:
     def plot_confusion_matrix(
         confusion_matrix: ConfusionMatrix,
         class_names: List[str],
-        figsize: Tuple[int, int] = (10, 8),
-        cmap: str = "Blues",
-        normalize: Optional[str] = None,
         save_path: Optional[str] = None,
-        dpi: int = 300,
     ) -> plt.Figure:
-        fig, ax = plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=(16, 10))
 
         cm = confusion_matrix.compute().cpu().numpy()
-        if normalize == "true":
-            cm = cm / cm.sum(axis=1, keepdims=True)
-            fmt = ".2f"
-        elif normalize == "pred":
-            cm = cm / cm.sum(axis=0, keepdims=True)
-            fmt = ".2f"
-        elif normalize == "all":
-            cm = cm / cm.sum()
-            fmt = ".2f"
-        else:
-            fmt = "d"
+        cm = cm / cm.sum(axis=1, keepdims=True)
 
         sns.heatmap(
-            cm, annot=True, fmt=fmt, cmap=cmap, xticklabels=class_names, yticklabels=class_names, ax=ax
+            cm, annot=True, fmt=".2f", cmap="Blues", xticklabels=class_names, yticklabels=class_names, ax=ax
         )
 
         ax.tick_params(axis="x", labelrotation=45)
         ax.set_xlabel("Predicted Labels")
         ax.set_ylabel("True Labels")
-
-        title = "Confusion Matrix"
-        if normalize:
-            title += f" (Normalized by {normalize})"
-
-        ax.set_title(title)
+        ax.set_title("Normalized Confusion Matrix")
 
         fig.tight_layout()
 
         if save_path:
-            fig.savefig(save_path, bbox_inches="tight", dpi=dpi)
+            fig.savefig(save_path, bbox_inches="tight", dpi=300)
 
         return fig
 
     @staticmethod
-    def plot_roc_curve(
-        roc: ROC,
-        class_names: List[str],
-        figsize: Tuple[int, int] = (10, 8),
-        save_path: Optional[str] = None,
-        dpi: int = 300,
-    ) -> plt.Figure:
-        fig, ax = plt.subplots(figsize=figsize)
+    def plot_roc_curve(roc: ROC, class_names: List[str], save_path: Optional[str] = None) -> plt.Figure:
+        fig, ax = plt.subplots(figsize=(16, 10))
 
         fpr, tpr, _ = roc.compute()
 
@@ -75,8 +50,8 @@ class MetricsVisualizer:
             )
 
         ax.plot([0, 1], [0, 1], "k--", lw=2)
-        ax.set_xlim([0.0, 1.0])
-        ax.set_ylim([0.0, 1.05])
+        ax.set_xlim((0.0, 1.0))
+        ax.set_ylim((0.0, 1.05))
         ax.set_xlabel("False Positive Rate")
         ax.set_ylabel("True Positive Rate")
         ax.set_title("Receiver Operating Characteristic (ROC) Curves")
@@ -85,17 +60,12 @@ class MetricsVisualizer:
         fig.tight_layout()
 
         if save_path:
-            fig.savefig(save_path, bbox_inches="tight", dpi=dpi)
+            fig.savefig(save_path, bbox_inches="tight", dpi=300)
 
         return fig
 
     @staticmethod
-    def plot_training_metrics(
-        metrics_file: str,
-        figsize: Tuple[int, int] = (12, 8),
-        save_path: Optional[str] = None,
-        dpi: int = 300,
-    ) -> plt.Figure:
+    def plot_training_metrics(metrics_file: str, save_path: Optional[str] = None) -> plt.Figure:
         metrics_df = pd.read_csv(metrics_file)
 
         train_metrics = {col for col in metrics_df.columns if col.startswith("train_")}
@@ -109,7 +79,7 @@ class MetricsVisualizer:
         n_cols = min(3, n_metrics)
         n_rows = (n_metrics + n_cols - 1) // n_cols
 
-        fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize)
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(16, 10))
         if n_rows == 1 and n_cols == 1:
             axes = np.array([axes])
         axes = axes.flatten()
@@ -139,6 +109,6 @@ class MetricsVisualizer:
         fig.tight_layout()
 
         if save_path:
-            fig.savefig(save_path, bbox_inches="tight", dpi=dpi)
+            fig.savefig(save_path, bbox_inches="tight", dpi=300)
 
         return fig

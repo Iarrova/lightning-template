@@ -1,6 +1,4 @@
-from typing import Optional
-
-from torchmetrics import MetricCollection
+from torchmetrics import Metric, MetricCollection
 from torchmetrics.classification import (
     AUROC,
     ROC,
@@ -16,6 +14,7 @@ from torchmetrics.classification import (
 class MetricsFactory:
     @staticmethod
     def create_classification_metrics(num_classes: int, prefix: str = "") -> MetricCollection:
+        # TODO: Maybe add support for multilabel classification in the future
         task = "multiclass" if num_classes > 2 else "binary"
 
         metrics = {
@@ -34,9 +33,11 @@ class MetricsFactory:
         return MetricCollection(metrics, prefix=prefix)
 
     @staticmethod
-    def create_confusion_matrix(num_classes: int, normalize: Optional[str] = None) -> ConfusionMatrix:
-        return ConfusionMatrix(task="multiclass", num_classes=num_classes, normalize=normalize)
+    def create_confusion_matrix(num_classes: int) -> Metric:
+        task = "multiclass" if num_classes > 2 else "binary"
+        return ConfusionMatrix(task=task, num_classes=num_classes, normalize="true")
 
     @staticmethod
-    def create_roc_curve(num_classes: int) -> ROC:
-        return ROC(task="multiclass", num_classes=num_classes)
+    def create_roc_curve(num_classes: int) -> Metric:
+        task = "multiclass" if num_classes > 2 else "binary"
+        return ROC(task=task, num_classes=num_classes)
