@@ -1,34 +1,43 @@
 import lightning as L
 import torch.nn as nn
 
-from src.config.config import Config
-from src.metrics.factory import MetricsFactory
+from src.config import Config
+from src.model.criterion import CriterionFactory
+from src.model.metrics import MetricFactory
 from src.model.optimizers import OptimizerFactory
 from src.model.schedulers import SchedulerFactory
+from src.networks import create_network
 
 
 class Model(L.LightningModule):
-    def __init__(self, network: nn.Module, config: Config, num_classes: int):
+    def __init__(self, config: Config, num_classes: int):
         super().__init__()
-        self.network = network
-        self.criterion = nn.CrossEntropyLoss()
         self.config: Config = config
         self.num_classes = num_classes
 
+        self._create_network()
+        self._create_criterion()
         self._create_metrics()
-        # TODO: See impact of this! self.save_hyperparameters(ignore=["network"])
 
     def _create_metrics(self):
         self.metrics = nn.ModuleDict(
             {
-                "_train": MetricsFactory.create_classification_metrics(self.num_classes, prefix="train_"),
-                "val": MetricsFactory.create_classification_metrics(self.num_classes, prefix="val_"),
-                "test": MetricsFactory.create_classification_metrics(self.num_classes, prefix="test_"),
+                "_train": MetricFactory.create(
+                    self.config.training.metrics, self.num_classes, prefix="train_"
+                ),
+                "val": MetricFactory.create(self.config.training.metrics, self.num_classes, prefix="val_"),
+                "test": MetricFactory.create(self.config.training.metrics, self.num_classes, prefix="test_"),
             }
         )
 
-        self.confusion_matrix = MetricsFactory.create_confusion_matrix(self.num_classes)
-        self.roc_curve = MetricsFactory.create_roc_curve(self.num_classes)
+        # self.confusion_matrix = MetricsFactory.create_confusion_matrix(self.num_classes)
+        # self.roc_curve = MetricsFactory.create_roc_curve(self.num_classes)
+
+    def _create_network(self):
+        self.network = create_network(self.config.network, self.num_classes)
+
+    def _create_criterion(self):
+        self.criterion = CriterionFactory.create(self.config.training.criterion)
 
     def forward(self, x):
         return self.network(x)
@@ -78,7 +87,14 @@ class Model(L.LightningModule):
             self.config.training.scheduler,
             patience=self.config.training.scheduler_patience,
             factor=self.config.training.scheduler_factor,
-            monitor="val_loss",
         )
 
-        return {"optimizer": optimizer, **scheduler}
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "monitor": "val_loss",
+                "interval": "epoch",
+                "frequency": 1,
+            },
+        }

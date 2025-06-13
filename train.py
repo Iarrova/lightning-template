@@ -1,4 +1,3 @@
-import os
 from argparse import ArgumentParser
 
 import lightning as L
@@ -12,12 +11,9 @@ from lightning.pytorch.callbacks import (
 )
 from pytorch_lightning.loggers import CSVLogger, TensorBoardLogger
 
-from src.config.config import Config
-from src.config.json_parser import ConfigParser
-from src.datasets.factory import DatasetFactory
-from src.metrics.visualizer import MetricsVisualizer
+from src.config import Config
+from src.datasets import create_dataset
 from src.model.model import Model
-from src.networks.factory import NetworkFactory
 
 
 def train(config: Config) -> None:
@@ -31,17 +27,24 @@ def train(config: Config) -> None:
     else:
         print("[INFO] CUDA is not available. Training on CPU...")
 
-    dataset = DatasetFactory.create(config.dataset)
+    dataset = create_dataset(config.dataset)
     train_loader, validation_loader = dataset.generate_train_loaders()
 
-    network = NetworkFactory.create(config.network, config.weights, dataset.num_classes)
-
-    model = Model(network=network, config=config, num_classes=dataset.NUM_CLASSES)
+    if config.network.lightning_checkpoint:
+        print(f"[INFO] Loading model from checkpoint: {config.network.lightning_checkpoint}")
+        model = Model.load_from_checkpoint(
+            checkpoint_path=config.network.lightning_checkpoint,
+            config=config,
+            num_classes=dataset.NUM_CLASSES,
+        )
+    else:
+        print("[INFO] Creating new model instance")
+        model = Model(config=config, num_classes=dataset.NUM_CLASSES)
 
     callbacks = [
         ModelCheckpoint(
-            dirpath=config.weights.save_weights_path.parent,
-            filename=config.weights.save_weights_path.stem,
+            dirpath=config.save_weights_path.parent,
+            filename=config.save_weights_path.stem,
             monitor="val_loss",
             mode="min",
             verbose=True,
@@ -54,23 +57,17 @@ def train(config: Config) -> None:
         RichProgressBar(),
     ]
 
+    log_dir = config.logging.log_dir / config.save_weights_path.stem
+    log_dir.mkdir(parents=True, exist_ok=True)
+
     loggers = []
-    log_dir = config.logging.log_dir / config.weights.save_weights_path.parent
     if config.logging.tensorboard:
         loggers.append(TensorBoardLogger(save_dir=log_dir, name="tensorboard"))
     if config.logging.csv:
         loggers.append(CSVLogger(save_dir=log_dir, name="csv_logs"))
 
     trainer = L.Trainer(
-        max_epochs=config.training.num_epochs,
-        callbacks=callbacks,
-        accelerator="auto",
-        devices="auto",
-        logger=loggers,
-        precision="16-mixed" if config.mixed_precision and torch.cuda.is_available() else "32",
-        gradient_clip_val=1.0,
-        log_every_n_steps=50,
-        deterministic=True,
+        max_epochs=config.training.num_epochs, callbacks=callbacks, logger=loggers, log_every_n_steps=50
     )
 
     print(f"[INFO] Training model with {dataset.NUM_CLASSES} classes")
@@ -79,24 +76,19 @@ def train(config: Config) -> None:
     print(f"[INFO] Using batch size {config.dataset.batch_size}")
     print(f"[INFO] Using learning rate {config.training.learning_rate}")
     print(f"[INFO] Using network {config.network.network}")
-    print(f"[INFO] Using weights {config.weights.pretrained_weights}")
+    print(f"[INFO] Using weights {config.network.pytorch_weights}")
     print(f"[INFO] Using optimizer {config.training.optimizer}")
     print(f"[INFO] Using scheduler {config.training.scheduler}")
-    print(f"[INFO] Using mixed precision: {config.mixed_precision}")
 
-    trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=validation_loader)
+    trainer.fit(
+        model=model,
+        train_dataloaders=train_loader,
+        val_dataloaders=validation_loader,
+        ckpt_path=config.network.lightning_checkpoint if config.training.resume_training else None,
+    )
 
     print(f"[INFO] Best model path: {trainer.checkpoint_callback.best_model_path}")
     print(f"[INFO] Best model score: {trainer.checkpoint_callback.best_model_score:.4f}")
-
-    if config.logging.csv:
-        metrics_file = os.path.join(log_dir, "csv_logs", "metrics.csv")
-        if os.path.exists(metrics_file):
-            print("[INFO] Visualizing training metrics...")
-            MetricsVisualizer.plot_training_metrics(
-                metrics_file=metrics_file,
-                save_path=os.path.join(log_dir, "training_metrics.png"),
-            )
 
     return trainer.checkpoint_callback.best_model_path
 
@@ -110,8 +102,7 @@ def main():
     )
     args = parser.parse_args()
 
-    config = ConfigParser.parse_json(args.config_path)
-
+    config = Config.from_json(args.config_path)
     train(config)
 
 

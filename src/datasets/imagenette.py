@@ -1,0 +1,69 @@
+from typing import TYPE_CHECKING, Dict, Tuple
+
+import torch
+from torch.utils.data import Dataset
+from torchvision import datasets
+from torchvision.transforms import v2
+
+from src.datasets.base import BaseDataset
+
+if TYPE_CHECKING:
+    from src.config import DatasetConfig
+
+
+class ImagenetteDataset(BaseDataset):
+    NUM_CLASSES: int = 10
+
+    def __init__(self, config: "DatasetConfig"):
+        super().__init__(config)
+        self.data_dir = "./data"
+
+    def get_transforms(self) -> Tuple[v2.Compose, v2.Compose]:
+        normalize = [
+            v2.ToImage(),
+            v2.Resize(size=(224, 224)),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+
+        if self.config.augment:
+            train_transforms = [v2.RandomHorizontalFlip(p=0.5)] + normalize
+        else:
+            train_transforms = normalize
+
+        transform_train = v2.Compose(train_transforms)
+        transform_test = v2.Compose(normalize)
+
+        return transform_train, transform_test
+
+    def get_train_dataset(self, transform_train: v2.Compose) -> Dataset:
+        return datasets.Imagenette(
+            root=self.data_dir,
+            split="train",
+            size="full",
+            download=True,
+            transform=transform_train,
+        )
+
+    def get_test_dataset(self, transform_test: v2.Compose) -> Dataset:
+        return datasets.Imagenette(
+            root=self.data_dir,
+            split="val",
+            size="full",
+            download=True,
+            transform=transform_test,
+        )
+
+    def get_class_mapping(self) -> Dict[str, int]:
+        return {
+            "tench": 0,
+            "english_springer": 1,
+            "cassette_player": 2,
+            "chainsaw": 3,
+            "church": 4,
+            "french_horn": 5,
+            "garbage_truck": 6,
+            "gas_pump": 7,
+            "golf_ball": 8,
+            "parachute": 9,
+        }

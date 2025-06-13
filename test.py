@@ -5,12 +5,10 @@ import lightning as L
 import torch
 from lightning.pytorch.loggers import CSVLogger
 
-from src.config.config import Config
-from src.config.json_parser import ConfigParser
-from src.datasets.factory import DatasetFactory
+from config import Config
+from src.datasets import create_dataset
 from src.metrics.visualizer import MetricsVisualizer
 from src.model.model import Model
-from src.networks.factory import NetworkFactory
 
 
 def test(config: Config):
@@ -21,10 +19,8 @@ def test(config: Config):
     else:
         print("[INFO] CUDA is not available. Testing on CPU...")
 
-    dataset = DatasetFactory.create(config.dataset)
+    dataset = create_dataset(config.dataset)
     test_loader = dataset.generate_test_loader()
-
-    network = NetworkFactory.create(config.network, config.weights, dataset.num_classes)
 
     if not os.path.exists(config.weights.save_weights_path):
         raise FileNotFoundError(f"Checkpoint not found at {config.weights.save_weights_path}")

@@ -1,22 +1,31 @@
-from abc import ABC, abstractmethod
+from enum import StrEnum
+from typing import TYPE_CHECKING
 
-import torch
-from torch import nn
+from src.networks.base import BaseNetwork
+from src.networks.efficientnetv2 import EfficientNetV2
+from src.networks.resnet50 import ResNet50
+from src.networks.vision_transformer import VisionTransformer
 
-from src.config.config import NetworkConfig, WeightsConfig
+if TYPE_CHECKING:
+    from src.config import NetworkConfig
 
 
-class BaseNetwork(nn.Module, ABC):
-    def __init__(self, network_config: NetworkConfig, weights_config: WeightsConfig, num_classes: int = 1000):
-        super().__init__()
-        self.network_config = network_config
-        self.weights_config = weights_config
-        self.num_classes = num_classes
-        self.model = self._create_model()
+class Network(StrEnum):
+    RESNET50 = "ResNet50"
+    EFFICIENTNETV2 = "EfficientNetV2"
+    VISION_TRANSFORMER = "VisionTransformer"
 
-    @abstractmethod
-    def _create_model(self) -> nn.Module:
-        pass
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model(x)
+NETWORK_MAPPING = {
+    Network.RESNET50: ResNet50,
+    Network.EFFICIENTNETV2: EfficientNetV2,
+    Network.VISION_TRANSFORMER: VisionTransformer,
+}
+
+
+def create_network(config: "NetworkConfig", num_classes: int) -> BaseNetwork:
+    if config.network not in NETWORK_MAPPING:
+        raise ValueError(f"Unknown dataset: {config.network}")
+
+    network_class = NETWORK_MAPPING[config.network]
+    return network_class(config, num_classes)

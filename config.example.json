@@ -1,34 +1,34 @@
 {
-    "training": {
-        "batch_size": 32,
-        "validation_size": 0.2,
-        "learning_rate": 0.001,
-        "num_epochs": 50,
-        "early_stopping_patience": 10,
-        "optimizer": "Adam",
-        "scheduler": "ReduceOnPlateau",
-        "scheduler_patience": 5,
-        "scheduler_factor": 0.1,
-        "resume_training": false
-    },
-    "dataset": {
-        "dataset": "Imagenette",
-        "augment": true,
-        "num_workers": 15
-    },
-    "network": {
-        "network": "EfficientNetV2",
-        "include_top": false,
-        "pytorch_weights": null,
-        "lightning_checkpoint": null
-    },
-    "logging": {
-        "tensorboard": true,
-        "csv": true,
-        "log_dir": "./logs",
-        "weights_dir": "./models",
-        "weights_path": "EfficientNetV2_Imagenette"
-    },
-    "seed": 42,
-    "mixed_precision": true
+  "training": {
+    "learning_rate": 0.001,
+    "num_epochs": 50,
+    "early_stopping_patience": 10,
+    "optimizer": "Adam",
+    "scheduler": "ReduceOnPlateau",
+    "scheduler_patience": 5,
+    "scheduler_factor": 0.1,
+    "metrics": ["all"],
+    "criterion": "CrossEntropy",
+    "resume_training": false
+  },
+  "dataset": {
+    "dataset": "CIFAR10",
+    "augment": true,
+    "num_workers": 15,
+    "batch_size": 128,
+    "validation_size": 0.2
+  },
+  "network": {
+    "network": "ResNet50",
+    "include_top": false,
+    "pytorch_weights": "ImageNet",
+    "lightning_checkpoint": null
+  },
+  "logging": {
+    "tensorboard": true,
+    "csv": true,
+    "log_dir": "./logs"
+  },
+  "save_weights_path": "./weights/ResNet50_CIFAR10.ckpt",
+  "seed": 42
 }
