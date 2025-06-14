@@ -9,6 +9,22 @@ A flexible PyTorch training framework with modular components for datasets, netw
 3. Run training: `python train.py --config-path config.json`
 4. Run testing: `python test.py --config-path config.json`
 
+### Weights and Biases
+
+The project has Weights and Biases as the default logger. To use it:
+
+1. Install wandb: `pip install wandb` (included in dependencies)
+2. Login to Weights and Biases: `wandb login`
+
+The framework automatically logs:
+
+- Training/validation metrics
+- Model checkpoints
+- Learning rate schedule
+- System information
+
+WandB runs are created under the project "Lightning-Starter" with the run name matching your `project_name` from the config.
+
 ## Extending the Framework
 
 ### Custom Datasets

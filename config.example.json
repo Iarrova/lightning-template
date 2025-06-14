@@ -26,7 +26,7 @@
     "lightning_checkpoint": null
   },
   "logging": {
-    "tensorboard": true,
+    "tensorboard": false,
     "wandb": true
   },
   "seed": 42

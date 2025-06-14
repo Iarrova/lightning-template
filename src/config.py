@@ -72,8 +72,8 @@ class NetworkConfig(BaseModel):
 
 
 class LoggingConfig(BaseModel):
-    tensorboard: Annotated[bool, Field(default=True)]
-    wandb: Annotated[bool, Field(default=False)]
+    tensorboard: Annotated[bool, Field(default=False)]
+    wandb: Annotated[bool, Field(default=True)]
 
 
 class Config(BaseModel):
