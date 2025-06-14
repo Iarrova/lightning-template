@@ -1,4 +1,5 @@
 {
+  "project_name": "CIFAR10_ResNet50",
   "training": {
     "learning_rate": 0.001,
     "num_epochs": 50,
@@ -26,9 +27,7 @@
   },
   "logging": {
     "tensorboard": true,
-    "csv": true,
-    "log_dir": "./logs"
+    "wandb": true
   },
-  "save_weights_path": "./weights/ResNet50_CIFAR10.ckpt",
   "seed": 42
 }

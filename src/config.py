@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import Annotated, Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 from pydantic.types import PositiveFloat, PositiveInt
 
 from src.datasets import Dataset
@@ -73,27 +73,16 @@ class NetworkConfig(BaseModel):
 
 class LoggingConfig(BaseModel):
     tensorboard: Annotated[bool, Field(default=True)]
-    csv: Annotated[bool, Field(default=True)]
-    log_dir: Annotated[Path, Field(default=Path("./logs"))]
-
-    @model_validator(mode="after")
-    def create_directories(self) -> "LoggingConfig":
-        self.log_dir.mkdir(parents=True, exist_ok=True)
-        return self
+    wandb: Annotated[bool, Field(default=False)]
 
 
 class Config(BaseModel):
+    project_name: str
     training: TrainingConfig
     dataset: DatasetConfig
     network: NetworkConfig
     logging: LoggingConfig
-    save_weights_path: Annotated[Path, Field(default=Path("./weights/model.ckpt"))]
     seed: Annotated[PositiveInt, Field(default=42)]
-
-    @model_validator(mode="after")
-    def create_directories(self) -> "Config":
-        self.save_weights_path.parent.mkdir(parents=True, exist_ok=True)
-        return self
 
     @classmethod
     def from_json(cls, path: str) -> "Config":

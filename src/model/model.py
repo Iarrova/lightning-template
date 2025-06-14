@@ -15,12 +15,14 @@ class Model(L.LightningModule):
         self.config: Config = config
         self.num_classes = num_classes
 
-        self._create_network()
-        self._create_criterion()
-        self._create_metrics()
+        self.network = self._create_network()
+        self.criterion = self._create_criterion()
+        self.metrics = self._create_metrics()
+
+        self.save_hyperparameters()
 
     def _create_metrics(self):
-        self.metrics = nn.ModuleDict(
+        return nn.ModuleDict(
             {
                 "_train": MetricFactory.create(
                     self.config.training.metrics, self.num_classes, prefix="train_"
@@ -34,27 +36,26 @@ class Model(L.LightningModule):
         # self.roc_curve = MetricsFactory.create_roc_curve(self.num_classes)
 
     def _create_network(self):
-        self.network = create_network(self.config.network, self.num_classes)
+        return create_network(self.config.network, self.num_classes)
 
     def _create_criterion(self):
-        self.criterion = CriterionFactory.create(self.config.training.criterion)
+        return CriterionFactory.create(self.config.training.criterion)
 
     def forward(self, x):
         return self.network(x)
 
-    def step(self, batch):
-        inputs, target = batch
-        output = self.network(inputs)
-        loss = self.criterion(output, target)
-        return loss, output, target
+    def _compute_step(self, batch):
+        inputs, targets = batch
+        outputs = self.network(inputs)
+        loss = self.criterion(outputs, targets)
+        return loss, outputs, targets
 
     def _shared_step(self, batch, stage: str):
-        loss, output, target = self.step(batch)
-        metrics = self.metrics[stage]
-        metrics.update(output, target)
+        loss, outputs, targets = self._compute_step(batch)
 
-        self.log(f"{stage}_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log_dict(metrics, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.metrics[stage].update(outputs, targets)
+        self.log(f"{stage}_loss", loss, prog_bar=True)
+        self.log_dict(self.metrics[stage], prog_bar=True, on_epoch=True)
 
         return loss
 
@@ -65,14 +66,14 @@ class Model(L.LightningModule):
         return self._shared_step(batch, "val")
 
     def test_step(self, batch, batch_idx):
-        loss, output, target = self.step(batch)
+        loss, outputs, targets = self._compute_step(batch)
 
-        self.metrics["test"].update(output, target)
-        self.confusion_matrix.update(output, target)
-        self.roc_curve.update(output, target)
+        self.metrics["test"].update(outputs, targets)
+        # self.confusion_matrix.update(output, target)
+        # self.roc_curve.update(output, target)
 
-        self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
-        self.log_dict(self.metrics["test"], on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        self.log("test_loss", loss)
+        self.log_dict(self.metrics["test"], on_step=False, on_epoch=True)
 
         return loss
 
