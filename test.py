@@ -28,7 +28,7 @@ def test(config: Config):
         num_classes=dataset.num_classes,
     )
 
-    trainer = L.Trainer(accelerator="auto", devices="auto", logger=False)
+    trainer = L.Trainer(logger=False)
 
     print(f"[INFO] Testing model from ./weights/{config.project_name}.ckpt")
     trainer.test(model=model, datamodule=dataset)
