@@ -2,11 +2,13 @@ import torch
 from torch import nn
 from torchvision import models
 
+from src.config import NetworkConfig
 from src.networks.base import BaseNetwork
 
 
 class ResNet50(BaseNetwork):
-    def __init__(self) -> None:
+    def __init__(self, config: NetworkConfig, num_classes: int) -> None:
+        super().__init__(config, num_classes)
         if self.network_config.pytorch_weights == "ImageNet":
             model = models.resnet50(weights="IMAGENET1K_V2")
         else:
