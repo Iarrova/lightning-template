@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from src.datasets.base import BaseDataset
+from src.datasets.base import BaseDataModule
 from src.datasets.cifar10 import CIFAR10Dataset
 from src.datasets.imagenette import ImagenetteDataset
 
@@ -20,7 +20,7 @@ DATASET_MAPPING = {
 }
 
 
-def create_dataset(config: "DatasetConfig") -> BaseDataset:
+def create_dataset(config: "DatasetConfig") -> BaseDataModule:
     if config.dataset not in DATASET_MAPPING:
         raise ValueError(f"Unknown dataset: {config.dataset}")
 

@@ -1,22 +1,71 @@
-from typing import TYPE_CHECKING, Dict, Tuple
+from typing import TYPE_CHECKING, Tuple
 
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, random_split, Subset
 from torchvision import datasets
 from torchvision.transforms import v2
 
-from src.datasets.base import BaseDataset
+from src.datasets.base import BaseDataModule
 
 if TYPE_CHECKING:
     from src.config import DatasetConfig
 
 
-class ImagenetteDataset(BaseDataset):
+class ImagenetteDataset(BaseDataModule):
     NUM_CLASSES: int = 10
 
-    def __init__(self, config: "DatasetConfig"):
-        super().__init__(config)
-        self.data_dir = "./data"
+    def __init__(self, config: "DatasetConfig", data_dir: str = "./data"):
+        super().__init__(config, data_dir)
+
+    def prepare_data(self) -> None:
+        datasets.Imagenette(root=self.data_dir, split="train", size="full", download=True)
+        datasets.Imagenette(root=self.data_dir, split="val", size="full", download=True)
+
+    def setup(self, stage: str | None = None) -> None:
+        if stage == "fit":
+            train_transform, val_transform = self.get_transforms()
+            
+            imagenette = datasets.Imagenette(self.data_dir, split="train", transform=None)
+            train_subset, val_subset = random_split(
+                imagenette, lengths=[1 - self.config.validation_size, self.config.validation_size]
+            )
+            
+            imagenette_train = datasets.Imagenette(self.data_dir, split="train", transform=train_transform)
+            imagenette_val = datasets.Imagenette(self.data_dir, split="train", transform=val_transform)
+            
+            self.imagenette_train = Subset(imagenette_train, train_subset.indices)
+            self.imagenette_val = Subset(imagenette_val, val_subset.indices)
+
+        if stage == "test":
+            _, test_transform = self.get_transforms()
+            self.imagenette_test = datasets.Imagenette(self.data_dir, split="val", transform=test_transform)
+
+    def train_dataloader(self) -> DataLoader:
+        return DataLoader(
+            self.imagenette_train,
+            batch_size=self.config.batch_size,
+            shuffle=True,
+            num_workers=self.config.num_workers,
+            pin_memory=torch.cuda.is_available(),
+        )
+
+    def val_dataloader(self) -> DataLoader:
+        return DataLoader(
+            self.imagenette_val,
+            batch_size=self.config.batch_size,
+            shuffle=False,
+            num_workers=self.config.num_workers,
+            pin_memory=torch.cuda.is_available(),
+        )
+
+    def test_dataloader(self) -> DataLoader:
+        return DataLoader(
+            self.imagenette_test,
+            batch_size=self.config.batch_size,
+            shuffle=False,
+            num_workers=self.config.num_workers,
+            pin_memory=torch.cuda.is_available(),
+        )
 
     def get_transforms(self) -> Tuple[v2.Compose, v2.Compose]:
         normalize = [
@@ -35,35 +84,3 @@ class ImagenetteDataset(BaseDataset):
         transform_test = v2.Compose(normalize)
 
         return transform_train, transform_test
-
-    def get_train_dataset(self, transform_train: v2.Compose) -> Dataset:
-        return datasets.Imagenette(
-            root=self.data_dir,
-            split="train",
-            size="full",
-            download=True,
-            transform=transform_train,
-        )
-
-    def get_test_dataset(self, transform_test: v2.Compose) -> Dataset:
-        return datasets.Imagenette(
-            root=self.data_dir,
-            split="val",
-            size="full",
-            download=True,
-            transform=transform_test,
-        )
-
-    def get_class_mapping(self) -> Dict[str, int]:
-        return {
-            "tench": 0,
-            "english_springer": 1,
-            "cassette_player": 2,
-            "chainsaw": 3,
-            "church": 4,
-            "french_horn": 5,
-            "garbage_truck": 6,
-            "gas_pump": 7,
-            "golf_ball": 8,
-            "parachute": 9,
-        }
