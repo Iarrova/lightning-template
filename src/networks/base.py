@@ -13,11 +13,7 @@ class BaseNetwork(nn.Module, ABC):
         super().__init__()
         self.network_config = network_config
         self.num_classes = num_classes
-        self.model = self._create_model()
 
     @abstractmethod
-    def _create_model(self) -> nn.Module:
-        pass
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model(x)
+        pass

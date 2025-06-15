@@ -6,7 +6,7 @@ from src.networks.base import BaseNetwork
 
 
 class VisionTransformer(BaseNetwork):
-    def _create_model(self) -> nn.Module:
+    def __init__(self) -> None:
         if self.network_config.pytorch_weights == "ImageNet":
             model = models.vit_b_16(weights="IMAGENET1K_V1")
         else:
@@ -19,4 +19,7 @@ class VisionTransformer(BaseNetwork):
                 nn.Linear(model.heads[0].in_features, self.num_classes),
             )
 
-        return model
+        self.model = model
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)

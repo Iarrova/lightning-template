@@ -6,7 +6,7 @@ from src.networks.base import BaseNetwork
 
 
 class ResNet50(BaseNetwork):
-    def _create_model(self) -> nn.Module:
+    def __init__(self) -> None:
         if self.network_config.pytorch_weights == "ImageNet":
             model = models.resnet50(weights="IMAGENET1K_V2")
         else:
@@ -17,4 +17,7 @@ class ResNet50(BaseNetwork):
         if not self.network_config.include_top:
             model.fc = nn.Linear(model.fc.in_features, self.num_classes)
 
-        return model
+        self.model = model
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)

@@ -6,7 +6,7 @@ from src.networks.base import BaseNetwork
 
 
 class EfficientNetV2(BaseNetwork):
-    def _create_model(self) -> nn.Module:
+    def __init__(self) -> None:
         if self.network_config.pytorch_weights == "ImageNet":
             model = models.efficientnet_v2_s(weights="IMAGENET1K_V1")
         else:
@@ -20,4 +20,7 @@ class EfficientNetV2(BaseNetwork):
                 nn.Linear(model.classifier[1].in_features, self.num_classes),
             )
 
-        return model
+        self.model = model
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
