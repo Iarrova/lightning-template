@@ -74,6 +74,7 @@ class NetworkConfig(BaseModel):
 class LoggingConfig(BaseModel):
     tensorboard: Annotated[bool, Field(default=False)]
     wandb: Annotated[bool, Field(default=True)]
+    wandb_project: Annotated[str, Field(default="PyTorch-Starter")]
 
 
 class Config(BaseModel):

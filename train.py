@@ -21,14 +21,10 @@ def train(config: Config) -> None:
 
     if torch.cuda.is_available():
         print("[INFO] CUDA is available! Training on GPU...")
-        print(f"[INFO] Using {torch.cuda.device_count()} GPU(s)")
-        for i in range(torch.cuda.device_count()):
-            print(f"[INFO] GPU {i}: {torch.cuda.get_device_name(i)}")
     else:
         print("[INFO] CUDA is not available. Training on CPU...")
 
     dataset = create_dataset(config.dataset)
-    train_loader, validation_loader = dataset.generate_train_loaders()
 
     if config.network.lightning_checkpoint:
         print(f"[INFO] Loading model from checkpoint: {config.network.lightning_checkpoint}")
@@ -65,19 +61,18 @@ def train(config: Config) -> None:
             WandbLogger(
                 save_dir=f"./logs/{config.project_name}",
                 name=f"{config.project_name}",
-                project="Lightning-Starter",
+                project=config.logging.wandb_project,
                 log_model=True,
             )
         )
 
     trainer = L.Trainer(
-        max_epochs=config.training.num_epochs, callbacks=callbacks, logger=loggers, log_every_n_steps=50
+        max_epochs=config.training.num_epochs, callbacks=callbacks, logger=loggers
     )
 
     trainer.fit(
         model=model,
-        train_dataloaders=train_loader,
-        val_dataloaders=validation_loader,
+        datamodule=dataset,
         ckpt_path=config.network.lightning_checkpoint if config.training.resume_training else None,
     )
 

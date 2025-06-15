@@ -18,7 +18,6 @@ def test(config: Config):
         print("[INFO] CUDA is not available. Testing on CPU...")
 
     dataset = create_dataset(config.dataset)
-    test_loader = dataset.generate_test_loader()
 
     if not os.path.exists(f"./weights/{config.project_name}.ckpt"):
         raise FileNotFoundError(f"Checkpoint not found at ./weights/{config.project_name}.ckpt")
@@ -32,7 +31,7 @@ def test(config: Config):
     trainer = L.Trainer(accelerator="auto", devices="auto", logger=False)
 
     print(f"[INFO] Testing model from ./weights/{config.project_name}.ckpt")
-    trainer.test(model=model, dataloaders=test_loader)
+    trainer.test(model=model, datamodule=dataset)
 
 
 def main():
