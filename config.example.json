@@ -1,5 +1,5 @@
 {
-  "project_name": "CIFAR10_ResNet50",
+  "project_name": "CIFAR10_EfficientNetV2",
   "training": {
     "learning_rate": 0.001,
     "num_epochs": 50,
@@ -20,14 +20,15 @@
     "validation_size": 0.2
   },
   "network": {
-    "network": "ResNet50",
+    "network": "EfficientNetV2",
     "include_top": false,
     "pytorch_weights": "ImageNet",
     "lightning_checkpoint": null
   },
   "logging": {
     "tensorboard": false,
-    "wandb": true
+    "wandb": true,
+    "wandb_project": "PyTorch-Starter"
   },
   "seed": 42
 }
